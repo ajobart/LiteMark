@@ -9,6 +9,7 @@ module.exports = {
       colors: {
         'background-page': '#151515',
         'background-sidebar': '#222',
+        'background-selected': '#3d3d3d',
       }
     },
   },
