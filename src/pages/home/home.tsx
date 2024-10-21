@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '../../molecule/sidebar/sidebar';
 import MarkdownEditor from '../../molecule/markdown-editor/markdown-editor';
 import { getNotes, addNote, initializeNotes, updateNote } from '../../services/storage.service';
+import { Note } from '../../types/note.type';
 
 const Home: React.FC = () => {
 
   // State for list of notes
-  const [notes, setNotes] = useState<{ id: string, title: string }[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
 
   // State to keep selected note
   const [selectedNote, setSelectedNote] = useState<{ id: string, title: string, content: string } | null>(null);
@@ -17,7 +18,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     initializeNotes();
     const loadedNotes = getNotes();
-    setNotes(loadedNotes.map(note => ({ id: note.id, title: note.title })));
+    setNotes(loadedNotes.map(note => ({ id: note.id, content: note.content, title: note.title })));
     
     // Select the first note if any exist
     if (loadedNotes.length > 0) {
@@ -63,7 +64,7 @@ const Home: React.FC = () => {
     };
 
     addNote(newNote);
-    setNotes([...notes, { id: newNote.id, title: newNote.title }]);
+    setNotes([...notes, { id: newNote.id, content: newNote.content, title: newNote.title }]);
     setSelectedNote({ id: newNote.id, title: newNote.title, content: newNote.content });
   };
 
@@ -76,7 +77,6 @@ const Home: React.FC = () => {
         onCreateNote={handleCreateNote}
       />
       <div className="flex-1 bg-background-page h-screen">
-        <h1 className="text-center text-2xl my-4">Welcome to LiteMark!</h1>
         {selectedNote ? (
           <MarkdownEditor
             key={selectedNote.id} // Add key here to force re-render

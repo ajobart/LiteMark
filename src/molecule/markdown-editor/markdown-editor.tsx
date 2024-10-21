@@ -57,8 +57,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
   }, [title, content, debounceSave]);
 
   return (
-    <div className="w-3/4 p-4 h-fit w-full flex flex-row gap-2">
-      <div className='w-full'>
+    <div className="w-3/4 p-4 h-screen w-full flex flex-row gap-2">
+      <div className='w-full h-screen'>
         {/* Title Input */}
         <input
           type="text"
@@ -75,9 +75,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
         />
       </div>
       {/* Separator */}
-      <div className='h-screen w-[2px] bg-gray-300'></div>
+      <div className='h-full w-[2px] bg-background-border'></div>
       {/* Markdown Renderer */}
-      <div className="p-4 rounded w-full h-screen markdown-body">
+      <div className="p-4 box-border rounded w-full h-screen markdown-body">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {`# ${title}\n\n${typeof content === 'string' ? content : ''}`}
         </ReactMarkdown>
