@@ -7,29 +7,63 @@ import { Note } from "../types/note.type";
   const defaultNote: Note = {
     id: 'default-note',
     title: 'Bienvenue dans LiteMark',
+    lastModified: new Date(),
     content: `
-        # Bienvenue dans LiteMark!
-        
-        Ce document est votre première note. Vous pouvez commencer à écrire en Markdown ici.
-        
-        ## Exemples :
-        - **Gras** : \`**texte**\`
-        - *Italique* : \`*texte*\`
-        - [Lien](https://www.example.com)
-        - ~~Texte barré~~ : \`~~texte~~\`
-        - Liste de tâches :
-            - [ ] À faire
-            - [x] Fait
-        
-        Amusez-vous bien ! 🎉
-        `,
+Ce document est votre première note. Vous pouvez commencer à écrire en Markdown ici.
+Si vous voulez en apprendre plus sur le Mardown, cliquez [ici](https://www.markdownguide.org/getting-started/)
+
+## Exemples :
+- **Gras** : \`**texte**\`
+- *Italique* : \`*texte*\`
+- [Lien](https://www.example.com)
+- ~~Texte barré~~ : \`~~texte~~\`
+- Liste de tâches :
+    - [ ] À faire
+    - [x] Fait
+
+Amusez-vous bien ! 🎉
+    `,
   };
+
+  const defaultLongNote: Note = {
+    id: 'default-long-note',
+    title: 'Long note',
+    lastModified: new Date(),
+    content: `
+Lorem ipsum odor amet, consectetuer adipiscing elit. Blandit at adipiscing varius torquent iaculis ipsum quis nunc. Tellus facilisis quisque maximus, ac malesuada vestibulum nascetur tincidunt. Litora volutpat volutpat blandit mollis fames himenaeos parturient nascetur. Convallis montes egestas viverra porttitor rhoncus ligula varius pulvinar class. Feugiat dui ullamcorper senectus est feugiat. Convallis enim facilisi faucibus suspendisse purus nec. Montes litora malesuada viverra enim dictum praesent. Pretium nam natoque, metus molestie integer elementum.
+
+## Second heading
+Consequat ut ut proin et donec luctus lacinia. Ridiculus ridiculus egestas dis ante convallis. Aenean leo tempus mus nulla euismod phasellus proin id. Nostra cursus dictum efficitur phasellus sapien. Nostra nisi habitasse arcu platea adipiscing; varius parturient blandit. Lectus platea class aptent diam leo nunc ultrices magna sit. Leo elit elit blandit massa, laoreet orci platea. Aliquam class volutpat egestas mi euismod tortor habitasse aliquam. Sociosqu lacus himenaeos praesent lacus tincidunt! Rhoncus porta platea platea mauris maximus malesuada.
+
+## Third heading
+Facilisi nibh dictum sapien facilisis feugiat. Urna varius gravida sollicitudin magna netus rutrum. Aptent et felis scelerisque lacus turpis turpis imperdiet ante consectetur. Imperdiet urna pulvinar tortor euismod cursus sagittis laoreet. Consectetur fames ipsum maximus sodales donec. Faucibus senectus nam consequat odio blandit netus. Neque mattis fringilla bibendum mattis neque; sodales magna sociosqu suspendisse. Nibh tortor urna ultrices; netus convallis at eros magna.
+
+## Fourth heading
+Auctor semper vitae; lorem parturient nullam mattis tellus. Enim congue integer nascetur, quam bibendum fusce. Hendrerit aenean maecenas habitasse vivamus auctor amet. Nisl vulputate porta mus aliquam ornare. Montes posuere vel lectus ex massa. Aid dapibus arcu maecenas porttitor condimentum lacinia. Pharetra conubia eros fames varius lectus turpis.
+
+## Fifth heading
+Nibh hac gravida aliquet varius; sed porttitor ut. Elementum massa sed nulla dis dolor pretium. Lobortis enim turpis nostra elit eget sapien nisi. Dignissim posuere lectus luctus accumsan netus vulputate. Sem porttitor gravida est placerat parturient. Luctus bibendum mattis sociosqu sagittis sem scelerisque donec praesent potenti. Conubia morbi sed felis aliquet felis habitasse eleifend. Tristique finibus sollicitudin magna eu etiam etiam iaculis. Nunc ridiculus natoque felis ac massa maecenas ut laoreet. Conubia a aptent non vulputate fames sociosqu risus sociosqu.
+
+## Six heading
+Consequat ut ut proin et donec luctus lacinia. Ridiculus ridiculus egestas dis ante convallis. Aenean leo tempus mus nulla euismod phasellus proin id. Nostra cursus dictum efficitur phasellus sapien. Nostra nisi habitasse arcu platea adipiscing; varius parturient blandit. Lectus platea class aptent diam leo nunc ultrices magna sit. Leo elit elit blandit massa, laoreet orci platea. Aliquam class volutpat egestas mi euismod tortor habitasse aliquam. Sociosqu lacus himenaeos praesent lacus tincidunt! Rhoncus porta platea platea mauris maximus malesuada.
+
+## Seven heading
+Facilisi nibh dictum sapien facilisis feugiat. Urna varius gravida sollicitudin magna netus rutrum. Aptent et felis scelerisque lacus turpis turpis imperdiet ante consectetur. Imperdiet urna pulvinar tortor euismod cursus sagittis laoreet. Consectetur fames ipsum maximus sodales donec. Faucibus senectus nam consequat odio blandit netus. Neque mattis fringilla bibendum mattis neque; sodales magna sociosqu suspendisse. Nibh tortor urna ultrices; netus convallis at eros magna.
+
+## Eight heading
+Auctor semper vitae; lorem parturient nullam mattis tellus. Enim congue integer nascetur, quam bibendum fusce. Hendrerit aenean maecenas habitasse vivamus auctor amet. Nisl vulputate porta mus aliquam ornare. Montes posuere vel lectus ex massa. Aid dapibus arcu maecenas porttitor condimentum lacinia. Pharetra conubia eros fames varius lectus turpis.
+
+## Nine heading
+Nibh hac gravida aliquet varius; sed porttitor ut. Elementum massa sed nulla dis dolor pretium. Lobortis enim turpis nostra elit eget sapien nisi. Dignissim posuere lectus luctus accumsan netus vulputate. Sem porttitor gravida est placerat parturient. Luctus bibendum mattis sociosqu sagittis sem scelerisque donec praesent potenti. Conubia morbi sed felis aliquet felis habitasse eleifend. Tristique finibus sollicitudin magna eu etiam etiam iaculis. Nunc ridiculus natoque felis ac massa maecenas ut laoreet. Conubia a aptent non vulputate fames sociosqu risus sociosqu.
+    `,
+  }
 
   // Create default note 
   export const initializeNotes = (): void => {
     const notes = getNotes();
     if (notes.length === 0) {
       addNote(defaultNote);
+      addNote(defaultLongNote);
     }
   };
   
@@ -60,6 +94,7 @@ import { Note } from "../types/note.type";
       // Update the title and content of the selected note
       notes[noteIndex].title = title;
       notes[noteIndex].content = content;
+      notes[noteIndex].lastModified = new Date();
       saveNotes(notes);
     }
   };  

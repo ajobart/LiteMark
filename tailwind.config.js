@@ -10,7 +10,8 @@ module.exports = {
         'background-page': '#1E1E1E',
         'background-sidebar': '#222',
         'background-selected': '#3d3d3d',
-        'background-border': '#363636'
+        'background-border': '#363636',
+        'background-search': '#2A2A2A'
       }
     },
   },
