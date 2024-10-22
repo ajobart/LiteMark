@@ -32,9 +32,13 @@ const Home: React.FC = () => {
     if (selectedNote && (selectedNote.title !== title || selectedNote.content !== content)) { 
       // Only update if there is a change in title or content
       updateNote(selectedNote.id, { title, content });
-      setSelectedNote({ ...selectedNote, title, content });
+
+      // Update the lastModified date in the selected note
+      const updatedNote = {...selectedNote, title, content, lastModified: new Date()}
+      setSelectedNote(updatedNote);
+      // Update content here
       setNotes(prevNotes =>
-        prevNotes.map(note => (note.id === selectedNote.id ? { ...note, title, content } : note)) // Update content here
+        prevNotes.map(note => (note.id === selectedNote.id ? updatedNote : note))
       );
     }
   };
