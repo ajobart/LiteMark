@@ -35,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
   });
 
   return (
-    <div className="w-[350px] h-vh overflow-scroll bg-background-sidebar p-4 flex flex-col">
+    <div className="w-[350px] h-full overflow-scroll bg-background-sidebar p-4 flex flex-col">
       <h1 className="text-center text-2xl my-4">LiteMark</h1>
       {/* Buttons */}
       <div className='flex items-center justify-end'>

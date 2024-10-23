@@ -58,9 +58,9 @@ html, body, #root {
     @apply bg-background-selected text-blue-400 rounded px-1;
 }
 
-.markdown-body pre {
-    @apply bg-background-selected p-4 rounded overflow-x-auto mb-4;
-}
+// .markdown-body pre {
+//     @apply p-1 border rounded;
+// }
 
 .markdown-body table {
     @apply w-full border-collapse mb-4;

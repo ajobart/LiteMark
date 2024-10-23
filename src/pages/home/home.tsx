@@ -3,6 +3,7 @@ import Sidebar from '../../molecule/sidebar/sidebar';
 import MarkdownEditor from '../../molecule/markdown-editor/markdown-editor';
 import { getNotes, addNote, initializeNotes, updateNote, deleteNote } from '../../services/storage.service';
 import { Note } from '../../types/note.type';
+import Image from '../../molecule/image/image';
 
 const Home: React.FC = () => {
 
@@ -12,6 +13,9 @@ const Home: React.FC = () => {
   // State to keep selected note
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
+  // State to control sidebar visibility
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+
   /**
    * Effect to init notes
    */
@@ -19,7 +23,7 @@ const Home: React.FC = () => {
     initializeNotes();
     const loadedNotes = getNotes();
     setNotes(loadedNotes.map(note => ({ id: note.id, content: note.content, lastModified: note.lastModified, title: note.title })));
-    
+
     // Select the first note if any exist
     if (loadedNotes.length > 0) {
       const firstNote = loadedNotes[0];
@@ -29,12 +33,12 @@ const Home: React.FC = () => {
 
   // Save the note's title and content when changes are made
   const handleSaveContent = (title: string, content: string) => {
-    if (selectedNote && (selectedNote.title !== title || selectedNote.content !== content)) { 
+    if (selectedNote && (selectedNote.title !== title || selectedNote.content !== content)) {
       // Only update if there is a change in title or content
       updateNote(selectedNote.id, { title, content });
 
       // Update the lastModified date in the selected note
-      const updatedNote = {...selectedNote, title, content, lastModified: new Date()}
+      const updatedNote = { ...selectedNote, title, content, lastModified: new Date() }
       setSelectedNote(updatedNote);
       // Update content here
       setNotes(prevNotes =>
@@ -65,7 +69,7 @@ const Home: React.FC = () => {
       lastModified: new Date(),
       content: '',
     };
-  
+
     addNote(newNote);
     // Update the notes state immediately after adding the new note
     setNotes(prevNotes => [...prevNotes, newNote]);
@@ -82,18 +86,31 @@ const Home: React.FC = () => {
     }
   };
 
+  // Function to toggle sidebar visibility
+  const toggleSidebar = () => {
+    setIsSidebarVisible(prev => !prev);
+  };
+
   return (
     <div className="w-full h-screen max-h-screen overflow-hidden flex">
-      <Sidebar
-        // Force re-render when the number of notes changes
-        key={notes.length}
-        notes={notes}
-        selectedNoteId={selectedNote?.id || null}
-        onSelectNote={handleSelectNote}
-        onCreateNote={handleCreateNote}
-        onDeleteNote={handleDeleteNote}
-      />
+      <div className={`h-screen transition-all duration-300 ${isSidebarVisible ? 'w-[350px]' : 'w-0 overflow-hidden'}`}>
+        <Sidebar
+          // Force re-render when the number of notes changes
+          key={notes.length}
+          notes={notes}
+          selectedNoteId={selectedNote?.id || null}
+          onSelectNote={handleSelectNote}
+          onCreateNote={handleCreateNote}
+          onDeleteNote={handleDeleteNote}
+        />
+      </div>
       <div className="flex-1 bg-background-page h-screen">
+        <button 
+          onClick={toggleSidebar}
+          className="absolute top-4 left-4 z-10 bg-background-border hover:bg-background-selected transition ease-in-out duration-250 p-2 box-border rounded"
+        >
+          {isSidebarVisible ? <Image className='size-6' path='/icons/sidebar-hide.svg'></Image> : <Image className='size-6' path='/icons/sidebar-show.svg'></Image>}
+        </button>
         {selectedNote ? (
           <MarkdownEditor
             // Add key here to force re-render

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef, AnchorHTMLAttributes, KeyboardEvent } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 interface MarkdownEditorProps {
   initialTitle: string;
@@ -9,7 +11,7 @@ interface MarkdownEditorProps {
 }
 
 const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialContent, onSave }) => {
-  
+
   // State for the title of the note
   const [title, setTitle] = useState(initialTitle);
 
@@ -118,19 +120,66 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
     </a>
   );
 
+  // Custom code block component for react-markdown
+  const customCodeBlock = ({ node, inline, className, children, ...props }: any) => {
+    const match = /language-(\w+)/.exec(className || '');
+    return !inline && match ? (
+      <SyntaxHighlighter
+        style={dracula}
+        language={match[1]}
+        showLineNumbers={true}
+        PreTag="div"
+        className="text-xs"
+        {...props}
+      >
+        {String(children).replace(/\n$/, '')}
+      </SyntaxHighlighter>
+    ) : (
+      <code className={className} {...props}>
+        {children}
+      </code>
+    );
+  };
+
+  // Function to export the note as a .md file
+  const exportNote = () => {
+    const blob = new Blob([`# ${title}\n\n${content}`], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    // Sanitize the title for the filename
+    a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    // Clean up the URL object
+    URL.revokeObjectURL(url);
+  };
+
   return (
-    <div className="w-3/4 p-4 box-border h-screen w-full flex flex-row gap-2">
+    <div className="w-3/4 p-4 box-border h-screen w-full flex flex-row mt-12 gap-2">
       <div className='w-full h-screen max-h-screen overflow-scroll'>
-        {/* Title Input */}
-        <input
-          ref={titleRef}
-          type="text"
-          value={title}
-          onChange={handleTitleChange}
-          onKeyDown={handleTitleKeyDown}
-          placeholder="Note Title"
-          className="w-full p-2 rounded mb-4 outline-none bg-background-page text-xl font-bold"
-        />
+        <div className='mb-4'>
+          {/* Title Input */}
+          <input
+            ref={titleRef}
+            type="text"
+            value={title}
+            onChange={handleTitleChange}
+            onKeyDown={handleTitleKeyDown}
+            placeholder="Note Title"
+            className="w-full p-2 rounded mb-2 outline-none bg-background-page text-xl font-bold"
+          />
+          <div>
+          {/* Export Button */}
+          <button
+            onClick={exportNote}
+            className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-2 rounded "
+          >
+            <p className='text-sm'>Export</p>
+          </button>
+          </div>
+        </div>
         {/* Content Textarea */}
         <textarea
           ref={editorRef}
@@ -144,12 +193,13 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
       <div className='h-full w-[2px] bg-background-border'></div>
       {/* Markdown Renderer */}
       <div ref={previewRef} onScroll={handlePreviewScroll} className="p-4 box-border rounded w-full h-screen max-h-screen overflow-scroll markdown-body">
-        <ReactMarkdown 
-        components={{
-          // Use custome link
-          a: customLink
-        }}
-        remarkPlugins={[remarkGfm]}
+        <ReactMarkdown
+          components={{
+            // Use custom compnents
+            a: customLink,
+            code: customCodeBlock
+          }}
+          remarkPlugins={[remarkGfm]}
         >
           {`# ${title}\n\n${typeof content === 'string' ? content : ''}`}
         </ReactMarkdown>
