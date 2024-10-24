@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Image from '../image/image';
+import Image from '../../atoms/image/image';
 import { Note } from '../../types/note.type';
 import { timeAgo } from '../../services/helper.service';
 
@@ -36,7 +36,10 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
 
   return (
     <div className="w-[350px] h-full overflow-scroll bg-background-sidebar p-4 flex flex-col">
-      <h1 className="text-center text-2xl my-4">LiteMark</h1>
+      <div className='flex items-center justify-center w-full'>
+        <Image path='/images/litemark-test.png' className='size-16'></Image>
+        <h1 className="text-center text-2xl my-4">LiteMark</h1>
+      </div>
       {/* Buttons */}
       <div className='flex items-center justify-end'>
         <button

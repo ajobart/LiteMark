@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import Image from '../../atoms/image/image';
 
 interface MarkdownEditorProps {
   initialTitle: string;
@@ -157,9 +158,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
   };
 
   return (
-    <div className="w-3/4 p-4 box-border h-screen w-full flex flex-row mt-12 gap-2">
+    <div className="w-3/4 p-4 box-border h-screen w-full flex flex-row mt-2 gap-2">
       <div className='w-full h-screen max-h-screen overflow-scroll'>
-        <div className='mb-4'>
+        <div className='mb-1 pb-4 box-border border-b border-background-border w-full sticky top-0 bg-background-page'>
           {/* Title Input */}
           <input
             ref={titleRef}
@@ -168,17 +169,60 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
             onChange={handleTitleChange}
             onKeyDown={handleTitleKeyDown}
             placeholder="Note Title"
-            className="w-full p-2 rounded mb-2 outline-none bg-background-page text-xl font-bold"
+            className="w-full p-0 rounded mb-2 outline-none bg-background-page text-xl font-bold"
           />
-          <div>
-          {/* Export Button */}
-          <button
-            onClick={exportNote}
-            className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-2 rounded "
-          >
-            <p className='text-sm'>Export</p>
-          </button>
-          </div>
+          <ul className='flex w-full gap-1.5'>
+            <li>
+              <button
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+              >
+                <Image path="/icons/h1.svg" className='size-5' />
+              </button>
+            </li>
+            <li>
+              <button
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+              >
+                <Image path="/icons/h2.svg" className='size-5' />
+              </button>
+            </li>
+            <li>
+              <button
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+              >
+                <Image path="/icons/bold.svg" className='size-5' />
+              </button>
+            </li>
+            <li>
+              <button
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+              >
+                <Image path="/icons/italic.svg" className='size-5' />
+              </button>
+            </li>
+            <li>
+              <button
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+              >
+                <Image path="/icons/table.svg" className='size-5' />
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={exportNote}
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+              >
+                <Image path="/icons/export.svg" className='size-5' />
+              </button>
+            </li>
+            <li>
+              <button
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+              >
+                <Image path="/icons/trash-gray.svg" className='size-5' />
+              </button>
+            </li>
+          </ul>
         </div>
         {/* Content Textarea */}
         <textarea
@@ -192,7 +236,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
       {/* Separator */}
       <div className='h-full w-[2px] bg-background-border'></div>
       {/* Markdown Renderer */}
-      <div ref={previewRef} onScroll={handlePreviewScroll} className="p-4 box-border rounded w-full h-screen max-h-screen overflow-scroll markdown-body">
+      {/* To fix : onScroll={handlePreviewScroll} */}
+      <div ref={previewRef} className="p-4 box-border rounded w-full h-screen max-h-screen overflow-scroll markdown-body">
         <ReactMarkdown
           components={{
             // Use custom compnents
@@ -204,7 +249,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
           {`# ${title}\n\n${typeof content === 'string' ? content : ''}`}
         </ReactMarkdown>
       </div>
-    </div>
+    </div >
   );
 };
 

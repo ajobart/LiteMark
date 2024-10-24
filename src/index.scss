@@ -55,7 +55,7 @@ html, body, #root {
 }
 
 .markdown-body code {
-    @apply bg-background-selected text-blue-400 rounded px-1;
+    @apply bg-background-selected text-blue-400 rounded px-0;
 }
 
 // .markdown-body pre {

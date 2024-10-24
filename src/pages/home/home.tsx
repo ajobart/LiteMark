@@ -3,7 +3,7 @@ import Sidebar from '../../molecule/sidebar/sidebar';
 import MarkdownEditor from '../../molecule/markdown-editor/markdown-editor';
 import { getNotes, addNote, initializeNotes, updateNote, deleteNote } from '../../services/storage.service';
 import { Note } from '../../types/note.type';
-import Image from '../../molecule/image/image';
+import Image from '../../atoms/image/image';
 
 const Home: React.FC = () => {
 
@@ -104,7 +104,7 @@ const Home: React.FC = () => {
           onDeleteNote={handleDeleteNote}
         />
       </div>
-      <div className="flex-1 bg-background-page h-screen">
+      <div className="flex-1 bg-background-page h-screen overflow-hidden">
         <button 
           onClick={toggleSidebar}
           className="absolute top-4 left-4 z-10 bg-background-border hover:bg-background-selected transition ease-in-out duration-250 p-2 box-border rounded"
