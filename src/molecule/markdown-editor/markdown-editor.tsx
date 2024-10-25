@@ -9,12 +9,16 @@ interface MarkdownEditorProps {
   initialTitle: string;
   initialContent: string;
   onSave: (title: string, content: string) => void;
+  isSidebarVisible: boolean
 }
 
-const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialContent, onSave }) => {
+const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialContent, onSave, isSidebarVisible }) => {
 
   // State for the title of the note
   const [title, setTitle] = useState(initialTitle);
+
+  // State to track hover status
+  const [isHovered, setIsHovered] = useState(false);
 
   // State for the content of the note
   const [content, setContent] = useState(initialContent);
@@ -88,7 +92,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
   }
 
   // Function to handle scroll synchronization
-  function handlePreviewScroll() {
+  /*function handlePreviewScroll() {
     if (previewRef.current && editorRef.current) {
       const editor = editorRef.current;
       const preview = previewRef.current;
@@ -99,13 +103,18 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
       // Sync the scroll position of the editor
       editor.scrollTop = scrollPercentage * (editor.scrollHeight - editor.clientHeight);
     }
-  }
+  }*/
 
-  // Handle key press events on the title input
+  /**
+   * Handle key press events on the title input
+   * @param e - KeyboardEvent
+   */
   const handleTitleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && editorRef.current) {
-      e.preventDefault(); // Prevent the default behavior of Enter
-      editorRef.current.focus(); // Focus the textarea when Enter is pressed
+      // Prevent the default behavior of Enter
+      e.preventDefault();
+      // Focus the textarea when Enter is pressed
+      editorRef.current.focus();
     }
   };
 
@@ -122,7 +131,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
   );
 
   // Custom code block component for react-markdown
-  const customCodeBlock = ({ node, inline, className, children, ...props }: any) => {
+  const customCodeBlock = ({inline, className, children, ...props }: any) => {
     const match = /language-(\w+)/.exec(className || '');
     return !inline && match ? (
       <SyntaxHighlighter
@@ -142,8 +151,10 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
     );
   };
 
-  // Function to export the note as a .md file
-  const exportNote = () => {
+  /**
+   * Function to export the note as a .md file
+   */
+  function exportNote() {
     const blob = new Blob([`# ${title}\n\n${content}`], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -155,11 +166,11 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
     document.body.removeChild(a);
     // Clean up the URL object
     URL.revokeObjectURL(url);
-  };
+  }
 
   return (
     <div className="w-3/4 p-4 box-border h-screen w-full flex flex-row mt-2 gap-2">
-      <div className='w-full h-screen max-h-screen overflow-scroll'>
+      <div className='w-full h-screen overflow-x-hidden max-h-screen overflow-scroll'>
         <div className='mb-1 pb-4 box-border border-b border-background-border w-full sticky top-0 bg-background-page'>
           {/* Title Input */}
           <input
@@ -169,8 +180,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
             onChange={handleTitleChange}
             onKeyDown={handleTitleKeyDown}
             placeholder="Note Title"
-            className="w-full p-0 rounded mb-2 outline-none bg-background-page text-xl font-bold"
+            className={`w-full ${isSidebarVisible ? '' : 'ml-14 mb-4 animation ease-in-out duration-300'} p-0 rounded mb-2 outline-none bg-background-page text-xl font-bold`}
           />
+          {/* TOOLBAR */}
           <ul className='flex w-full gap-1.5'>
             <li>
               <button
@@ -218,8 +230,10 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
             <li>
               <button
                 className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
               >
-                <Image path="/icons/trash-gray.svg" className='size-5' />
+                <Image path={isHovered ? '/icons/trash-red.svg' : '/icons/trash-gray.svg'} className={`size-5 transition-transform transition-opacity duration-300 ${isHovered ? 'scale-105 opacity-100' : 'scale-100 opacity-50'}`} />
               </button>
             </li>
           </ul>

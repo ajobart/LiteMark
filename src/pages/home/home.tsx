@@ -14,7 +14,7 @@ const Home: React.FC = () => {
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   // State to control sidebar visibility
-  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+  const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true);
 
   /**
    * Effect to init notes
@@ -118,6 +118,7 @@ const Home: React.FC = () => {
             initialTitle={selectedNote.title}
             initialContent={selectedNote.content}
             onSave={handleSaveContent}
+            isSidebarVisible={isSidebarVisible}
           />
         ) : (
           <div className='w-full h-screen flex flex-col items-center justify-center'>
