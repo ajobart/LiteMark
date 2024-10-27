@@ -22,12 +22,12 @@ const Home: React.FC = () => {
   useEffect(() => {
     initializeNotes();
     const loadedNotes = getNotes();
-    setNotes(loadedNotes.map(note => ({ id: note.id, content: note.content, lastModified: note.lastModified, title: note.title })));
+    setNotes(loadedNotes.map(note => ({ id: note.id, content: note.content, lastModified: note.lastModified, title: note.title, tags: note.tags })));
 
     // Select the first note if any exist
     if (loadedNotes.length > 0) {
       const firstNote = loadedNotes[0];
-      setSelectedNote({ id: firstNote.id, title: firstNote.title, lastModified: firstNote.lastModified, content: firstNote.content });
+      setSelectedNote({ id: firstNote.id, title: firstNote.title, lastModified: firstNote.lastModified, content: firstNote.content, tags: firstNote.tags });
     }
   }, []);
 
@@ -35,14 +35,15 @@ const Home: React.FC = () => {
    * Function to save the note's title when changes are made
    * @param title - of the note
    * @param content - of the note
+   * @param tags - of the note
    */
-  function handleSaveContent(title: string, content: string) {
-    if (selectedNote && (selectedNote.title !== title || selectedNote.content !== content)) {
-      // Only update if there is a change in title or content
-      updateNote(selectedNote.id, { title, content });
+  function handleSaveContent(title: string, content: string, tags: string[]) {
+    if (selectedNote && (selectedNote.title !== title || selectedNote.content !== content || selectedNote.tags !== tags)) {
+      // Only update if there is a change in title or content or tags
+      updateNote(selectedNote.id, { title, content, tags });
 
       // Update the lastModified date in the selected note
-      const updatedNote = { ...selectedNote, title, content, lastModified: new Date() }
+      const updatedNote = { ...selectedNote, title, content, lastModified: new Date(), tags }
       setSelectedNote(updatedNote);
       // Update content here
       setNotes(prevNotes =>
@@ -62,7 +63,7 @@ const Home: React.FC = () => {
       if (selected) {
         // Prevent looping by checking if the note is different
         if (selectedNote?.id !== selected.id) {
-          setSelectedNote({ id: selected.id, title: selected.title, lastModified: selected.lastModified, content: selected.content });
+          setSelectedNote({ id: selected.id, title: selected.title, lastModified: selected.lastModified, content: selected.content, tags: selected.tags });
         }
       }
     }
@@ -77,12 +78,13 @@ const Home: React.FC = () => {
       title: `New Note`,
       lastModified: new Date(),
       content: '',
+      tags: []
     };
 
     addNote(newNote);
     // Update the notes state immediately after adding the new note
     setNotes(prevNotes => [...prevNotes, newNote]);
-    setSelectedNote({ id: newNote.id, title: newNote.title, lastModified: newNote.lastModified, content: newNote.content });
+    setSelectedNote({ id: newNote.id, title: newNote.title, lastModified: newNote.lastModified, content: newNote.content, tags: newNote.tags });
   }
 
   /**
@@ -128,6 +130,7 @@ const Home: React.FC = () => {
             key={selectedNote.id}
             initialTitle={selectedNote.title}
             initialContent={selectedNote.content}
+            initialTags={selectedNote.tags}
             onSave={handleSaveContent}
             isSidebarVisible={isSidebarVisible}
             onDelete={handleDeleteNote}

@@ -17,7 +17,8 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
   // Filter notes based on the search query
   const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.content.toLowerCase().includes(searchQuery.toLowerCase())
+    note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (note.tags && note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())))
   );
 
   // Sort filtered notes by lastModified date (most recent first)
@@ -69,11 +70,23 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
             onClick={() => onSelectNote(note.id)}
           >
             {/* Note */}
-            <div className='h-full flex items-start justify-start flex-col'>
+            <div className='h-full flex items-start justify-start flex-col overflow-x-hidden'>
               <p className='text-md'>{note.title}</p>
-              <p className="text-xs text-white/40">
-                {timeAgo(new Date(note.lastModified))}
-              </p>
+              <div className='w-full flex gap-1'>
+                <p className="text-xs w-fit min-w-fit text-white/40">
+                  {timeAgo(new Date(note.lastModified))}
+                </p>
+                {/* Tags list */}
+                {note.tags && note.tags.length > 0 && (
+                  <ul className="flex flex-row w-auto gap-1 items-start overflow-hidden">
+                    {note.tags.map((tag, index) => (
+                      <li key={index} className="inline-flex items-center justify-center rounded-md bg-gray-400/10 hover:bg-gray-400/20 transition ease-in-out duration-300 py-0.5 px-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20">
+                        {tag}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
               <p className="text-sm text-white/60">
                 {getPreview(note.content, 60)}
               </p>

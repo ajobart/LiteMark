@@ -8,16 +8,20 @@ import Image from '../../atoms/image/image';
 interface MarkdownEditorProps {
   initialTitle: string;
   initialContent: string;
-  onSave: (title: string, content: string) => void;
+  initialTags: string[] | undefined;
+  onSave: (title: string, content: string, tags: string[]) => void;
   isSidebarVisible: boolean;
   onDelete: (id: string) => void;
   noteId: string;
 }
 
-const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialContent, onSave, isSidebarVisible, onDelete, noteId }) => {
+const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialContent, initialTags, onSave, isSidebarVisible, onDelete, noteId }) => {
 
   // State for the title of the note
   const [title, setTitle] = useState(initialTitle);
+
+  // State for the tags of the note
+  const [tags, setTags] = useState(initialTags)
 
   // State to track hover status
   const [isHovered, setIsHovered] = useState(false);
@@ -28,6 +32,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
   // State to track if it's the first load
   const [isFirstLoad, setIsFirstLoad] = useState(true);
 
+  // State to track current tag input
+  const [tagInput, setTagInput] = useState('');
+
   // Refs for the title, textarea and the markdown preview div
   const titleRef = useRef<HTMLInputElement>(null);
   const editorRef = useRef<HTMLTextAreaElement>(null);
@@ -37,20 +44,55 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
   useEffect(() => {
     setTitle(initialTitle);
     setContent(initialContent);
+    setTags(initialTags);
 
     // Focus the title input only when it's the first load (new note is opened)
     if (isFirstLoad && titleRef.current) {
       titleRef.current.focus();
       setIsFirstLoad(false);
     }
-  }, [initialTitle, initialContent, isFirstLoad]);
+  }, [initialTitle, initialContent, initialTags, isFirstLoad]);
 
   /**
    * Function to handle title change
    * @param e - change event on HTMLInputElement
    */
-  function handleTitleChange (e: React.ChangeEvent<HTMLInputElement>) {
+  function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setTitle(e.target.value);
+  }
+
+  /**
+   * Function to handle tags change
+   * @param e - change event on HTMLInputElement
+   */
+  function handleTagsChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setTagInput(e.target.value);
+  }
+
+  /**
+   * Function to handle key press events on the tags input
+   * @param e - KeyboardEvent
+   */
+  function handleTagsKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    // Check if the pressed key is the space bar
+    if (e.key === ' ' || e.key === 'Enter') {
+      // Prevent the default behavior of inserting a space in the input field
+      e.preventDefault();
+
+      // Remove whitespace from the input
+      const trimmedTag = tagInput.trim();
+
+      // Check if the trimmed tag starts with '#' and has more than one character
+      if (trimmedTag.startsWith('#') && trimmedTag.length > 1) {
+        // Create a new Set from the existing tags and add the new tag
+        const newTagsSet = new Set([...(tags || []), trimmedTag]);
+        // Convert the Set back to an array and update the state
+        setTags(Array.from(newTagsSet));
+    }
+
+      // Clear the input field after tag savec
+      setTagInput('');
+    }
   }
 
   /**
@@ -62,28 +104,28 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
   }
 
   // Utility function for debouncing the save function
-  function debounce(func: (title: string, content: string) => void, delay: number) {
+  function debounce(func: (title: string, content: string, tags: string[]) => void, delay: number) {
     let timeoutId: ReturnType<typeof setTimeout>;
-    return (title: string, content: string) => {
+    return (title: string, content: string, tags: string[]) => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        func(title, content);
+        func(title, content, tags);
       }, delay);
     };
   }
 
   // Debounced save function to avoid saving too frequently
   const debounceSave = useCallback(
-    debounce((newTitle: string, newContent: string) => {
-      onSave(newTitle, newContent);
+    debounce((newTitle: string, newContent: string, newTags: string[]) => {
+      onSave(newTitle, newContent, newTags);
     }, 500),
     [onSave]
   );
 
-  // Call debounceSave whenever the title or content changes
+  // Call debounceSave whenever the title, content or tags changes
   useEffect(() => {
-    debounceSave(title, content);
-  }, [title, content, debounceSave]);
+    debounceSave(title, content, tags || []);
+  }, [title, content, tags, debounceSave]);
 
   // Function to handle scroll synchronization
   function handleEditorScroll() {
@@ -302,10 +344,15 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
     onDelete(noteId);
   }
 
+  // Function to delete a tag
+  function handleTagDelete(tagToDelete: string) {
+    setTags((prevTags) => prevTags?.filter(tag => tag !== tagToDelete) || []);
+  }
+
   return (
     <div className="w-3/4 p-4 box-border h-screen w-full flex flex-row mt-2 gap-2">
       <div className='w-full h-screen overflow-x-hidden max-h-screen overflow-scroll'>
-        <div className='mb-1 pb-4 box-border border-b border-background-border w-full sticky top-0 bg-background-page'>
+        <div className='mb-1 pb-4 flex flex-col box-border border-b border-background-border w-full sticky top-0 bg-background-page'>
           {/* Title Input */}
           <input
             ref={titleRef}
@@ -316,6 +363,28 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
             placeholder="Note Title"
             className={`w-full ${isSidebarVisible ? '' : 'ml-14 mb-4 animation ease-in-out duration-300'} p-0 rounded mb-2 outline-none bg-background-page text-xl font-bold`}
           />
+          {/* Tags Input */}
+          <input
+            type="text"
+            value={tagInput}
+            onChange={handleTagsChange}
+            onKeyDown={handleTagsKeyDown}
+            placeholder="Add tags (e.g., #bitcoin)"
+            className={`w-full ${isSidebarVisible ? '' : 'ml-14 mb-4 animation ease-in-out duration-300'} p-0 rounded mb-2 outline-none bg-background-page text-xs font-medium`}
+          />
+          {/* Tags listing */}
+          <div className="flex flex-wrap gap-1 mb-2">
+            {tags?.map((tag, index) => (
+              <span
+                key={index}
+                className="inline-flex cursor-pointer items-center justify-center rounded-md bg-gray-400/10 hover:bg-gray-400/20 transition ease-in-out duration-300 px-1 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20"
+                onClick={() => handleTagDelete(tag)}
+              >
+                {tag}
+                <Image path='/icons/cross.svg' className='size-3'></Image>
+              </span>
+            ))}
+          </div>
           {/* TOOLBAR */}
           <ul className='flex w-full gap-1.5'>
             {/* Insert h1 */}

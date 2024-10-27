@@ -7,6 +7,7 @@ import { Note } from "../types/note.type";
   const defaultNote: Note = {
     id: 'default-note',
     title: 'Bienvenue dans LiteMark',
+    tags: [],
     lastModified: new Date(),
     content: `
 Ce document est votre première note. Vous pouvez commencer à écrire en Markdown ici.
@@ -29,6 +30,7 @@ Amusez-vous bien ! 🎉
   const defaultLongNote: Note = {
     id: 'default-long-note',
     title: 'Long note',
+    tags: [],
     lastModified: new Date(),
     content: `
 Lorem ipsum odor amet, consectetuer adipiscing elit. Blandit at adipiscing varius torquent iaculis ipsum quis nunc. Tellus facilisis quisque maximus, ac malesuada vestibulum nascetur tincidunt. Litora volutpat volutpat blandit mollis fames himenaeos parturient nascetur. Convallis montes egestas viverra porttitor rhoncus ligula varius pulvinar class. Feugiat dui ullamcorper senectus est feugiat. Convallis enim facilisi faucibus suspendisse purus nec. Montes litora malesuada viverra enim dictum praesent. Pretium nam natoque, metus molestie integer elementum.
@@ -97,16 +99,17 @@ Nibh hac gravida aliquet varius; sed porttitor ut. Elementum massa sed nulla dis
   /**
    * Function to update a note
    * @param id - note to update
-   * @param param1 - title and content object
+   * @param param1 - title, content, and tags object
    */
-  export function updateNote(id: string, { title, content }: { title: string; content: string }): void {
+  export function updateNote(id: string, { title, content, tags }: { title: string; content: string; tags: string[] }): void {
     const notes = getNotes();
     const noteIndex = notes.findIndex(note => note.id === id);
-  
+
     if (noteIndex !== -1) {
-      // Update the title and content of the selected note
+      // Update the title, content, and tags of the selected note
       notes[noteIndex].title = title;
       notes[noteIndex].content = content;
+      notes[noteIndex].tags = tags; // Ensure tags are updated
       notes[noteIndex].lastModified = new Date();
       saveNotes(notes);
     }
