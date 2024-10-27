@@ -8,10 +8,9 @@ interface SidebarProps {
   selectedNoteId: string | null;
   onSelectNote: (id: string) => void;
   onCreateNote: () => void;
-  onDeleteNote: (id: string) => void; // New prop for deleting notes
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, onCreateNote, onDeleteNote }) => {
+const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, onCreateNote }) => {
   // State for the value to search
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -35,7 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
   });
 
   return (
-    <div className="w-[350px] h-full overflow-scroll bg-background-sidebar p-4 flex flex-col">
+    <div className="w-[320px] h-full overflow-scroll bg-background-sidebar p-4 flex flex-col">
       <div className='flex items-center justify-center w-full'>
         <Image path='/images/litemark-test.png' className='size-16'></Image>
         <h1 className="text-center text-2xl my-4">LiteMark</h1>
@@ -77,19 +76,6 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
             <p className="text-sm text-white/60">
               {getPreview(note.content, 60)}
             </p>
-          </div>
-          {/* Delete btn */}
-          <div className='h-full flex flex-col items-center justify-center'>
-            <button 
-              onClick={(e) => { 
-                // Prevent triggering the onSelectNote
-                e.stopPropagation();
-                // Call the delete function
-                onDeleteNote(note.id);
-              }}
-            >
-              <Image path='/icons/trash-red.svg' className='h-6 min-w-4 max-w-4'></Image>
-            </button>
           </div>
         </li>
       ))}

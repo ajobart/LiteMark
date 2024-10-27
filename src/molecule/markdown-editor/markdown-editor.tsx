@@ -406,6 +406,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
         <textarea
           ref={editorRef}
           value={content}
+          placeholder='Type something here...'
           onChange={handleContentChange}
           onScroll={handleEditorScroll}
           className="w-full resize-none outline-none h-screen p-2 rounded mb-4 bg-background-page"

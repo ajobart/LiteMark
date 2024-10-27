@@ -93,7 +93,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="w-full h-screen max-h-screen overflow-hidden flex">
-      <div className={`h-screen transition-all duration-300 ${isSidebarVisible ? 'w-[350px]' : 'w-0 overflow-hidden'}`}>
+      <div className={`h-screen transition-all duration-300 ${isSidebarVisible ? 'w-[320px]' : 'w-0 overflow-hidden'}`}>
         <Sidebar
           // Force re-render when the number of notes changes
           key={notes.length}
@@ -101,7 +101,6 @@ const Home: React.FC = () => {
           selectedNoteId={selectedNote?.id || null}
           onSelectNote={handleSelectNote}
           onCreateNote={handleCreateNote}
-          onDeleteNote={handleDeleteNote}
         />
       </div>
       <div className="flex-1 bg-background-page h-screen overflow-hidden">
