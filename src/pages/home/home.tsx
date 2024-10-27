@@ -29,13 +29,7 @@ const Home: React.FC = () => {
       const mostRecentNote = loadedNotes.reduce((prev, current) => {
         return new Date(prev.lastModified) > new Date(current.lastModified) ? prev : current;
       });
-      setSelectedNote({
-        id: mostRecentNote.id,
-        title: mostRecentNote.title,
-        lastModified: mostRecentNote.lastModified,
-        content: mostRecentNote.content,
-        tags: mostRecentNote.tags
-      });
+      setSelectedNote({ ...mostRecentNote });
     }
   }, []);
 
