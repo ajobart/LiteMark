@@ -9,10 +9,12 @@ interface MarkdownEditorProps {
   initialTitle: string;
   initialContent: string;
   onSave: (title: string, content: string) => void;
-  isSidebarVisible: boolean
+  isSidebarVisible: boolean;
+  onDelete: (id: string) => void;
+  noteId: string;
 }
 
-const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialContent, onSave, isSidebarVisible }) => {
+const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialContent, onSave, isSidebarVisible, onDelete, noteId }) => {
 
   // State for the title of the note
   const [title, setTitle] = useState(initialTitle);
@@ -131,7 +133,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
   );
 
   // Custom code block component for react-markdown
-  const customCodeBlock = ({inline, className, children, ...props }: any) => {
+  const customCodeBlock = ({ inline, className, children, ...props }: any) => {
     const match = /language-(\w+)/.exec(className || '');
     return !inline && match ? (
       <SyntaxHighlighter
@@ -168,6 +170,128 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
     URL.revokeObjectURL(url);
   }
 
+  /**
+   * Function to insert Markdown at the cursor position
+   * @param markdown - The markdown to insert
+   */
+  function insertMarkdown(markdown: string) {
+    const editor = editorRef.current;
+    if (editor) {
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      const currentContent = content;
+
+      // Insert the markdown at the cursor position
+      const newContent = currentContent.substring(0, start) + markdown + currentContent.substring(end);
+      setContent(newContent);
+
+      // Move the cursor to the position after the inserted markdown
+      setTimeout(() => {
+        editor.selectionStart = editor.selectionEnd = start + markdown.length;
+        editor.focus();
+      }, 0);
+    }
+  }
+
+  /**
+   * Function to insert H1
+   */
+  function handleH1Click() {
+    insertMarkdown('# ');
+  }
+
+  /**
+   * Function to insert H2
+   */
+  function handleH2Click() {
+    insertMarkdown('## ');
+  }
+
+  /**
+   * Function to insert bold
+   */
+  function handleBoldClick() {
+    insertMarkdown('****');
+    setTimeout(() => {
+      const editor = editorRef.current;
+      if (editor) {
+        const start = editor.selectionStart;
+        // Move cursor at the middle for bold text
+        editor.selectionStart = editor.selectionEnd = start - 2;
+        editor.focus();
+      }
+    }, 0);
+  }
+
+  /**
+   * Function to insert italic
+   */
+  function handleItalicClick() {
+    insertMarkdown('*')
+    setTimeout(() => {
+      const editor = editorRef.current;
+      if (editor) {
+        const start = editor.selectionStart;
+        // Move cursor to the correct position for italic text
+        editor.selectionStart = editor.selectionEnd = start - 1;
+        editor.focus();
+      }
+    }, 0);
+  }
+
+  /**
+   * Function to insert table
+   */
+  function handleTableClick() {
+    insertMarkdown('\n| Header | Header |\n| ------ | ------ |\n| Row 1 | Row 1 |\n| Row 2 | Row 2 |\n');
+  }
+
+  /**
+   * Function to insert code block
+   */
+  function handleCodeClick() {
+    insertMarkdown('\n```js\n\n```')
+    setTimeout(() => {
+      const editor = editorRef.current;
+      if (editor) {
+        const start = editor.selectionStart;
+        // Move cursor to the correct position for code bloc
+        editor.selectionStart = editor.selectionEnd = start - 4;
+        editor.focus();
+      }
+    }, 0);
+  }
+
+  /**
+   * Function to insert checkbox
+   */
+  function handleCheckboxClick() {
+    insertMarkdown('\n- [ ] ');
+  }
+
+  /**
+  * Function to insert checkbox
+  */
+  function handleLinkClick() {
+    insertMarkdown('[Lien]()');
+    setTimeout(() => {
+      const editor = editorRef.current;
+      if (editor) {
+        const start = editor.selectionStart;
+        // Move cursor to the correct position for code bloc
+        editor.selectionStart = editor.selectionEnd = start - 1;
+        editor.focus();
+      }
+    }, 0);
+  }
+
+  /**
+   * Function to delete note
+   */
+  function handleDeleteClick() {
+    onDelete(noteId);
+  }
+
   return (
     <div className="w-3/4 p-4 box-border h-screen w-full flex flex-row mt-2 gap-2">
       <div className='w-full h-screen overflow-x-hidden max-h-screen overflow-scroll'>
@@ -184,52 +308,92 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
           />
           {/* TOOLBAR */}
           <ul className='flex w-full gap-1.5'>
+            {/* Insert h1 */}
             <li>
               <button
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+                onClick={handleH1Click}
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
               >
                 <Image path="/icons/h1.svg" className='size-5' />
               </button>
             </li>
+            {/* Insert h2 */}
             <li>
               <button
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+                onClick={handleH2Click}
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
               >
                 <Image path="/icons/h2.svg" className='size-5' />
               </button>
             </li>
+            {/* Insert bold */}
             <li>
               <button
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+                onClick={handleBoldClick}
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
               >
                 <Image path="/icons/bold.svg" className='size-5' />
               </button>
             </li>
+            {/* Insert italic */}
             <li>
               <button
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+                onClick={handleItalicClick}
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
               >
                 <Image path="/icons/italic.svg" className='size-5' />
               </button>
             </li>
+            {/* Insert table */}
             <li>
               <button
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+                onClick={handleTableClick}
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
               >
                 <Image path="/icons/table.svg" className='size-5' />
               </button>
             </li>
+            {/* Insert checkbox */}
+            <li>
+              <button
+                onClick={handleCheckboxClick}
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+              >
+                <Image path="/icons/checkbox.svg" className='size-5' />
+              </button>
+            </li>
+            {/* Insert link */}
+            <li>
+              <button
+                onClick={handleLinkClick}
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+              >
+                <Image path="/icons/link.svg" className='size-5' />
+              </button>
+            </li>
+            {/* Insert code */}
+            <li>
+              <button
+                onClick={handleCodeClick}
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+              >
+                <Image path="/icons/code.svg" className='size-5' />
+              </button>
+            </li>
+            {/* Export */}
             <li>
               <button
                 onClick={exportNote}
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
               >
                 <Image path="/icons/export.svg" className='size-5' />
               </button>
             </li>
+            {/* Delete */}
             <li>
               <button
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded "
+                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                onClick={handleDeleteClick}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
               >

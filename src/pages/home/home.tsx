@@ -107,7 +107,7 @@ const Home: React.FC = () => {
       <div className="flex-1 bg-background-page h-screen overflow-hidden">
         <button 
           onClick={toggleSidebar}
-          className="absolute top-4 left-4 z-10 bg-background-border hover:bg-background-selected transition ease-in-out duration-250 p-2 box-border rounded"
+          className="absolute top-4 left-4 z-10 bg-background-border hover:bg-background-selected transition ease-in-out duration-250 p-1 box-border rounded"
         >
           {isSidebarVisible ? <Image className='size-6' path='/icons/sidebar-hide.svg'></Image> : <Image className='size-6' path='/icons/sidebar-show.svg'></Image>}
         </button>
@@ -119,6 +119,8 @@ const Home: React.FC = () => {
             initialContent={selectedNote.content}
             onSave={handleSaveContent}
             isSidebarVisible={isSidebarVisible}
+            onDelete={handleDeleteNote}
+            noteId={selectedNote.id}
           />
         ) : (
           <div className='w-full h-screen flex flex-col items-center justify-center'>
