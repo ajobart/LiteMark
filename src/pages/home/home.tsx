@@ -31,8 +31,12 @@ const Home: React.FC = () => {
     }
   }, []);
 
-  // Save the note's title and content when changes are made
-  const handleSaveContent = (title: string, content: string) => {
+  /**
+   * Function to save the note's title when changes are made
+   * @param title - of the note
+   * @param content - of the note
+   */
+  function handleSaveContent(title: string, content: string) {
     if (selectedNote && (selectedNote.title !== title || selectedNote.content !== content)) {
       // Only update if there is a change in title or content
       updateNote(selectedNote.id, { title, content });
@@ -45,10 +49,13 @@ const Home: React.FC = () => {
         prevNotes.map(note => (note.id === selectedNote.id ? updatedNote : note))
       );
     }
-  };
+  }
 
-  // Handle selecting a note from the sidebar
-  const handleSelectNote = (id: string) => {
+  /**
+   * Function to handle selecting a notre from the sidebar
+   * @param id - of the note selected
+   */
+  function handleSelectNote(id: string) {
     // Only update if the selected note is different
     if (selectedNote?.id !== id) {
       const selected = getNotes().find(note => note.id === id);
@@ -59,10 +66,12 @@ const Home: React.FC = () => {
         }
       }
     }
-  };
+  }
 
-  // Handle creating a new note
-  const handleCreateNote = () => {
+  /**
+   * Function to handle creating a new note
+   */
+  function handleCreateNote() {
     const newNote = {
       id: new Date().toISOString(),
       title: `New Note`,
@@ -74,22 +83,25 @@ const Home: React.FC = () => {
     // Update the notes state immediately after adding the new note
     setNotes(prevNotes => [...prevNotes, newNote]);
     setSelectedNote({ id: newNote.id, title: newNote.title, lastModified: newNote.lastModified, content: newNote.content });
-  };
+  }
 
-  // Handle deleting a note
-  const handleDeleteNote = (id: string) => {
+  /**
+   * Function to handle deleting a note
+   * @param id - of the note to delete
+   */
+  function handleDeleteNote(id: string) {
     deleteNote(id);
     setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
     if (selectedNote?.id === id) {
       // Deselect the note if it was deleted
       setSelectedNote(null);
     }
-  };
+  }
 
   // Function to toggle sidebar visibility
-  const toggleSidebar = () => {
+  function toggleSidebar() {
     setIsSidebarVisible(prev => !prev);
-  };
+  }
 
   return (
     <div className="w-full h-screen max-h-screen overflow-hidden flex">

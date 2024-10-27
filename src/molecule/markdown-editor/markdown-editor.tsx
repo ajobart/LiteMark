@@ -45,15 +45,21 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
     }
   }, [initialTitle, initialContent, isFirstLoad]);
 
-  // Handle title changes
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  /**
+   * Function to handle title change
+   * @param e - change event on HTMLInputElement
+   */
+  function handleTitleChange (e: React.ChangeEvent<HTMLInputElement>) {
     setTitle(e.target.value);
-  };
+  }
 
-  // Handle content changes
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  /**
+   * Function to handle content change
+   * @param e - change event on HTMLTextAreaElement
+   */
+  function handleContentChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setContent(e.target.value);
-  };
+  }
 
   // Utility function for debouncing the save function
   function debounce(func: (title: string, content: string) => void, delay: number) {
@@ -108,17 +114,17 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
   }*/
 
   /**
-   * Handle key press events on the title input
+   * Function to handle key press events on the title input
    * @param e - KeyboardEvent
    */
-  const handleTitleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+  function handleTitleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter' && editorRef.current) {
       // Prevent the default behavior of Enter
       e.preventDefault();
       // Focus the textarea when Enter is pressed
       editorRef.current.focus();
     }
-  };
+  }
 
   // Custom link component compatible with react-markdown
   const customLink = ({ href, children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement>) => (
@@ -132,8 +138,12 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
     </a>
   );
 
-  // Custom code block component for react-markdown
-  const customCodeBlock = ({ inline, className, children, ...props }: any) => {
+  /**
+   * Function to create a custom code block component for react-markdow,
+   * @param param0 code block props
+   * @returns the code block
+   */
+  function customCodeBlock({ inline, className, children, ...props }: any) {
     const match = /language-(\w+)/.exec(className || '');
     return !inline && match ? (
       <SyntaxHighlighter
@@ -151,7 +161,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
         {children}
       </code>
     );
-  };
+  }
 
   /**
    * Function to export the note as a .md file

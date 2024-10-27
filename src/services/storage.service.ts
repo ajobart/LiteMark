@@ -22,9 +22,10 @@ Si vous voulez en apprendre plus sur le Mardown, cliquez [ici](https://www.markd
     - [x] Fait
 
 Amusez-vous bien ! 🎉
-    `,
+`,
   };
 
+  // Default long note
   const defaultLongNote: Note = {
     id: 'default-long-note',
     title: 'Long note',
@@ -55,38 +56,50 @@ Auctor semper vitae; lorem parturient nullam mattis tellus. Enim congue integer 
 
 ## Nine heading
 Nibh hac gravida aliquet varius; sed porttitor ut. Elementum massa sed nulla dis dolor pretium. Lobortis enim turpis nostra elit eget sapien nisi. Dignissim posuere lectus luctus accumsan netus vulputate. Sem porttitor gravida est placerat parturient. Luctus bibendum mattis sociosqu sagittis sem scelerisque donec praesent potenti. Conubia morbi sed felis aliquet felis habitasse eleifend. Tristique finibus sollicitudin magna eu etiam etiam iaculis. Nunc ridiculus natoque felis ac massa maecenas ut laoreet. Conubia a aptent non vulputate fames sociosqu risus sociosqu.
-    `,
+`,
   }
 
-  // Create default note 
-  export const initializeNotes = (): void => {
+  /**
+   * Function to create a default note
+   */
+  export function initializeNotes(): void {
     const notes = getNotes();
     if (notes.length === 0) {
       addNote(defaultNote);
       addNote(defaultLongNote);
     }
-  };
+  }
   
-  // Function to get notes from localStorage
-  export const getNotes = (): Note[] => {
+  /**
+   * Function to get notes from localStorage
+   * @returns - JSON object of all notes
+   */
+  export function getNotes(): Note[] {
     const notes = localStorage.getItem(STORAGE_KEY);
     return notes ? JSON.parse(notes) : [];
-  };
+  }
   
   // Function to save notes in local storage
-  export const saveNotes = (notes: Note[]): void => {
+  export function saveNotes(notes: Note[]): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-  };
-  
-  // Function to create a note
-  export const addNote = (note: Note): void => {
+  }
+
+  /**
+   * Function to create a note
+   * @param note - The note to create
+   */
+  export function addNote(note: Note): void {
     const notes = getNotes();
     notes.push(note);
     saveNotes(notes);
   };
   
-  // Function to update a note
-  export const updateNote = (id: string, { title, content }: { title: string; content: string }): void => {
+  /**
+   * Function to update a note
+   * @param id - note to update
+   * @param param1 - title and content object
+   */
+  export function updateNote(id: string, { title, content }: { title: string; content: string }): void {
     const notes = getNotes();
     const noteIndex = notes.findIndex(note => note.id === id);
   
@@ -99,8 +112,11 @@ Nibh hac gravida aliquet varius; sed porttitor ut. Elementum massa sed nulla dis
     }
   };  
   
-  // Function to delete note
-  export const deleteNote = (id: string): void => {
+  /**
+   * Function to delete note
+   * @param id - of the note to delete
+   */
+  export function deleteNote(id: string): void {
     const notes = getNotes();
     const updatedNotes = notes.filter(note => note.id !== id);
     saveNotes(updatedNotes);

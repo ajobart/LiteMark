@@ -14,6 +14,17 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
   // State for the value to search
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Filter notes based on the search query
+  const filteredNotes = notes.filter(note =>
+    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    note.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Sort filtered notes by lastModified date (most recent first)
+  const sortedNotes = filteredNotes.sort((a, b) => {
+    return new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime();
+  });
+
   // Function to truncate the content preview
   function getPreview(content: string, maxLength: number) {
     if (content.length > maxLength) {
@@ -22,16 +33,6 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
     return content;
   }
 
-  // Filter notes based on the search query
-  const filteredNotes = notes.filter(note => 
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    note.content.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Sort filtered notes by lastModified date (most recent first)
-  const sortedNotes = filteredNotes.sort((a, b) => {
-    return new Date(b.lastModified).getTime() - new Date(a.lastModified).getTime();
-  });
 
   return (
     <div className="w-[320px] h-full overflow-scroll bg-background-sidebar p-4 flex flex-col">
@@ -51,8 +52,8 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
       {/* Search */}
       <div className='mt-2 mb-4 w-full bg-background-search p-2 box-border rounded-md border-2 border-background-border h-10 flex items-center justify-start gap-2'>
         <Image path='/icons/search.svg' className='size-4'></Image>
-        <input 
-          placeholder='Search title or in content note..' 
+        <input
+          placeholder='Search title or in content note..'
           className='h-full w-full bg-transparent text-sm outline-none border-none'
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -60,25 +61,25 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
       </div>
       {/* Notes list */}
       <ul className='flex flex-col gap-2'>
-      {sortedNotes.map((note) => (
-        <li
-          key={note.id}
-          className={`cursor-pointer w-full h-[95px] min-h-[80px] gap-2 flex flex-row items-center justify-between p-2 rounded ${note.id === selectedNoteId ? 'bg-background-selected/60' : 'hover:bg-background-selected'
-            }`}
-          onClick={() => onSelectNote(note.id)}
-        >
-          {/* Note */}
-          <div className='h-full flex items-start justify-start flex-col'>
-            <p className='text-md'>{note.title}</p>
-            <p className="text-xs text-white/40">
-              {timeAgo(new Date(note.lastModified))}
-            </p>
-            <p className="text-sm text-white/60">
-              {getPreview(note.content, 60)}
-            </p>
-          </div>
-        </li>
-      ))}
+        {sortedNotes.map((note) => (
+          <li
+            key={note.id}
+            className={`cursor-pointer w-full h-[95px] min-h-[80px] gap-2 flex flex-row items-center justify-between p-2 rounded ${note.id === selectedNoteId ? 'bg-background-selected/60' : 'hover:bg-background-selected'
+              }`}
+            onClick={() => onSelectNote(note.id)}
+          >
+            {/* Note */}
+            <div className='h-full flex items-start justify-start flex-col'>
+              <p className='text-md'>{note.title}</p>
+              <p className="text-xs text-white/40">
+                {timeAgo(new Date(note.lastModified))}
+              </p>
+              <p className="text-sm text-white/60">
+                {getPreview(note.content, 60)}
+              </p>
+            </div>
+          </li>
+        ))}
       </ul>
     </div>
   );
