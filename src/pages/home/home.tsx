@@ -24,10 +24,18 @@ const Home: React.FC = () => {
     const loadedNotes = getNotes();
     setNotes(loadedNotes.map(note => ({ id: note.id, content: note.content, lastModified: note.lastModified, title: note.title, tags: note.tags })));
 
-    // Select the first note if any exist
+    // Select the most recently modified note by default
     if (loadedNotes.length > 0) {
-      const firstNote = loadedNotes[0];
-      setSelectedNote({ id: firstNote.id, title: firstNote.title, lastModified: firstNote.lastModified, content: firstNote.content, tags: firstNote.tags });
+      const mostRecentNote = loadedNotes.reduce((prev, current) => {
+        return new Date(prev.lastModified) > new Date(current.lastModified) ? prev : current;
+      });
+      setSelectedNote({
+        id: mostRecentNote.id,
+        title: mostRecentNote.title,
+        lastModified: mostRecentNote.lastModified,
+        content: mostRecentNote.content,
+        tags: mostRecentNote.tags
+      });
     }
   }, []);
 
