@@ -7,7 +7,7 @@ import { Note } from "../types/note.type";
   const defaultNote: Note = {
     id: 'default-note',
     title: 'Bienvenue dans LiteMark',
-    tags: [],
+    tags: ['#tutorial'],
     lastModified: new Date(),
     content: `
 Ce document est votre première note. Vous pouvez commencer à écrire en Markdown ici.
@@ -30,7 +30,7 @@ Amusez-vous bien ! 🎉
   const defaultLongNote: Note = {
     id: 'default-long-note',
     title: 'Long note',
-    tags: [],
+    tags: ['#tutorial'],
     lastModified: new Date(),
     content: `
 Lorem ipsum odor amet, consectetuer adipiscing elit. Blandit at adipiscing varius torquent iaculis ipsum quis nunc. Tellus facilisis quisque maximus, ac malesuada vestibulum nascetur tincidunt. Litora volutpat volutpat blandit mollis fames himenaeos parturient nascetur. Convallis montes egestas viverra porttitor rhoncus ligula varius pulvinar class. Feugiat dui ullamcorper senectus est feugiat. Convallis enim facilisi faucibus suspendisse purus nec. Montes litora malesuada viverra enim dictum praesent. Pretium nam natoque, metus molestie integer elementum.
