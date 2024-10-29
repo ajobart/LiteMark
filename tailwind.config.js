@@ -11,7 +11,8 @@ module.exports = {
         'background-sidebar': '#222',
         'background-selected': '#4E4E4F',
         'background-border': '#363636',
-        'background-search': '#2A2A2A'
+        'background-search': '#2A2A2A',
+        'background-code': '#2E2F31'
       }
     },
   },
