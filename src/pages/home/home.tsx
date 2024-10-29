@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../molecule/sidebar/sidebar';
 import MarkdownEditor from '../../molecule/markdown-editor/markdown-editor';
-import { getNotes, addNote, initializeNotes, updateNote, deleteNote } from '../../services/storage.service';
+import { getNotes, addNote, initializeNotes, updateNote, getDeletedNotes, moveToRecycleBin, permanentlyDeleteNote, saveDeletedNotes, saveNotes } from '../../services/storage.service';
 import { Note } from '../../types/note.type';
 import Image from '../../atoms/image/image';
 
@@ -10,11 +10,19 @@ const Home: React.FC = () => {
   // State for list of notes
   const [notes, setNotes] = useState<Note[]>([]);
 
+  // State for list of deleted notes
+  const [deletedNotes, setDeletedNotes] = useState<Note[]>([]);
+
   // State to keep selected note
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   // State to control sidebar visibility
   const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true);
+
+  // Function to toggle sidebar visibility
+  function toggleSidebar() {
+    setIsSidebarVisible(prev => !prev);
+  }
 
   /**
    * Effect to init notes
@@ -23,6 +31,8 @@ const Home: React.FC = () => {
     initializeNotes();
     const loadedNotes = getNotes();
     setNotes(loadedNotes.map(note => ({ id: note.id, content: note.content, lastModified: note.lastModified, title: note.title, tags: note.tags })));
+    const loadedDeletedNotes = getDeletedNotes();
+    setDeletedNotes(loadedDeletedNotes);
 
     // Select the most recently modified note by default
     if (loadedNotes.length > 0) {
@@ -59,15 +69,16 @@ const Home: React.FC = () => {
    * @param id - of the note selected
    */
   function handleSelectNote(id: string) {
-    // Only update if the selected note is different
-    if (selectedNote?.id !== id) {
-      const selected = getNotes().find(note => note.id === id);
-      if (selected) {
-        // Prevent looping by checking if the note is different
-        if (selectedNote?.id !== selected.id) {
-          setSelectedNote({ id: selected.id, title: selected.title, lastModified: selected.lastModified, content: selected.content, tags: selected.tags });
-        }
-      }
+    // Check if the note is in the normal notes or deleted notes
+    const selected = [...notes, ...deletedNotes].find(note => note.id === id);
+    if (selected) {
+        setSelectedNote({ 
+            id: selected.id, 
+            title: selected.title, 
+            lastModified: selected.lastModified, 
+            content: selected.content, 
+            tags: selected.tags 
+        });
     }
   }
 
@@ -89,22 +100,48 @@ const Home: React.FC = () => {
     setSelectedNote({ id: newNote.id, title: newNote.title, lastModified: newNote.lastModified, content: newNote.content, tags: newNote.tags });
   }
 
-  /**
-   * Function to handle deleting a note
-   * @param id - of the note to delete
-   */
+  // Function to handle deleting a note
   function handleDeleteNote(id: string) {
-    deleteNote(id);
-    setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
-    if (selectedNote?.id === id) {
-      // Deselect the note if it was deleted
-      setSelectedNote(null);
+    const noteToDelete = notes.find(note => note.id === id);
+    if (noteToDelete) {
+      moveToRecycleBin(noteToDelete);
+      setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
+      setDeletedNotes(prevDeleted => [...prevDeleted, noteToDelete]);
+      if (selectedNote?.id === id) {
+        setSelectedNote(null);
+      }
     }
   }
 
-  // Function to toggle sidebar visibility
-  function toggleSidebar() {
-    setIsSidebarVisible(prev => !prev);
+  function handleRestoreNote(note: Note) {
+    // Add the note back to the normal notes list
+    setNotes(prevNotes => [...prevNotes, note]);
+    
+    // Remove the note from the deleted notes list
+    setDeletedNotes(prevDeleted => prevDeleted.filter(deletedNote => deletedNote.id !== note.id));
+    
+    // Update the local storage
+    const updatedDeletedNotes = deletedNotes.filter(deletedNote => deletedNote.id !== note.id);
+    saveDeletedNotes(updatedDeletedNotes);
+    
+    // Optionally, you can also save the restored note back to the normal notes storage
+    saveNotes([...notes, note]);
+    
+    // Clear the selected note if it was the restored note
+    if (selectedNote?.id === note.id) {
+        setSelectedNote(null);
+    }
+  }
+
+  function handlePermanentlyDelete(id: string) {
+    // Check if the note being deleted is the currently selected note
+    if (selectedNote?.id === id) {
+        // Clear the selected note
+        setSelectedNote(null);
+    }
+    
+    permanentlyDeleteNote(id);
+    setDeletedNotes(prevDeleted => prevDeleted.filter(note => note.id !== id));
   }
 
   return (
@@ -117,6 +154,7 @@ const Home: React.FC = () => {
           selectedNoteId={selectedNote?.id || null}
           onSelectNote={handleSelectNote}
           onCreateNote={handleCreateNote}
+          deletedNotes={deletedNotes}
         />
       </div>
       <div className="flex-1 bg-background-page h-screen overflow-hidden">
@@ -137,6 +175,8 @@ const Home: React.FC = () => {
             isSidebarVisible={isSidebarVisible}
             onDelete={handleDeleteNote}
             noteId={selectedNote.id}
+            onRestore={handleRestoreNote}
+            onPermanentlyDelete={handlePermanentlyDelete}
           />
         ) : (
           <div className='w-full h-screen flex flex-col items-center justify-center'>

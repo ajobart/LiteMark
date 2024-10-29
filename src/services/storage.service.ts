@@ -3,6 +3,9 @@ import { Note } from "../types/note.type";
   // Storage key for notes
   const STORAGE_KEY = 'notes';
 
+  // Storage key for deleted notes
+  const DELETED_STORAGE_KEY = 'deletedNotes';
+
   // Default note
   const defaultNote: Note = {
     id: 'default-note',
@@ -62,13 +65,58 @@ Nibh hac gravida aliquet varius; sed porttitor ut. Elementum massa sed nulla dis
   }
 
   /**
+   * Function to get deleted notes from localStorage
+   * @returns deletedNotes list
+   */
+  export function getDeletedNotes(): Note[] {
+    const deletedNotes = localStorage.getItem(DELETED_STORAGE_KEY);
+    return deletedNotes ? JSON.parse(deletedNotes) : [];
+  }
+
+  /**
+   * Function to save deleted notes in local storage
+   * @param notes - to save
+   */
+  export function saveDeletedNotes(notes: Note[]): void {
+    localStorage.setItem(DELETED_STORAGE_KEY, JSON.stringify(notes));
+  }
+
+  /**
+   * Function to move a note to the recycle bin
+   * @param note - to move
+   */
+  export function moveToRecycleBin(note: Note): void {
+    const deletedNotes = getDeletedNotes();
+    deletedNotes.push(note);
+    saveDeletedNotes(deletedNotes);
+    
+    // Remove the note from the normal notes list
+    const notes = getNotes();
+    const updatedNotes = notes.filter(n => n.id !== note.id);
+    saveNotes(updatedNotes);
+  }
+
+  /**
+   * Function to permanently delete a note
+   * @param id - of the note to delete
+   */
+  export function permanentlyDeleteNote(id: string): void {
+    const deletedNotes = getDeletedNotes();
+    const updatedDeletedNotes = deletedNotes.filter(note => note.id !== id);
+    saveDeletedNotes(updatedDeletedNotes);
+  }
+
+  /**
    * Function to create a default note
    */
   export function initializeNotes(): void {
     const notes = getNotes();
-    if (notes.length === 0) {
-      addNote(defaultNote);
-      addNote(defaultLongNote);
+    const deletedNotes = getDeletedNotes();
+
+    // Only add default notes if there are no normal notes and no deleted notes
+    if (notes.length === 0 && deletedNotes.length === 0) {
+        addNote(defaultNote);
+        addNote(defaultLongNote);
     }
   }
   

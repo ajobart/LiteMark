@@ -8,14 +8,15 @@ interface SidebarProps {
   selectedNoteId: string | null;
   onSelectNote: (id: string) => void;
   onCreateNote: () => void;
+  deletedNotes: Note[];
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, onCreateNote }) => {
+const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, onCreateNote, deletedNotes }) => {
   // State for the value to search
   const [searchQuery, setSearchQuery] = useState('');
 
-  // State to toggle between notes and tags view
-  const [viewTags, setViewTags] = useState(false);
+  // State to toggle between tabs
+  const [activeTab, setActiveTab] = React.useState<'notes' | 'tags' | 'trash'>('notes');
 
   // State to manage expanded tags
   const [expandedTag, setExpandedTag] = useState<string | null>(null);
@@ -81,16 +82,21 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
         </div>
         <div className='flex flex-row items-center justify-center w-full my-4'>
           <button
-            onClick={() => setViewTags(false)}
-            className={`hover:bg-background-border flex items-center justify-center transition ease-in-out duration-250 text-white p-2 w-[80px] ${!viewTags ? 'border-b-2 border-bg-background-selected' : 'border-b-2 border-transparent'}`}
+            onClick={() => setActiveTab('notes')}
+            className={`hover:bg-background-border flex items-center justify-center transition ease-in-out duration-250 text-white p-2 w-[70px] ${activeTab === 'notes' ? 'border-b-2 border-bg-background-selected' : 'border-b-2 border-transparent'}`}
           >
             <Image path='/icons/note.svg' className='size-5'></Image>
           </button>
           <button
-            onClick={() => setViewTags(true)}
-            className={`hover:bg-background-border flex items-center justify-center transition ease-in-out duration-250 text-white p-2 w-[80px] ${viewTags ? 'border-b-2 border-bg-background-selected' : 'border-b-2 border-transparent'}`}
+            onClick={() => setActiveTab('tags')}
+            className={`hover:bg-background-border flex items-center justify-center transition ease-in-out duration-250 text-white p-2 w-[70px] ${activeTab === 'tags' ? 'border-b-2 border-bg-background-selected' : 'border-b-2 border-transparent'}`}
           >
             <Image path='/icons/tag.svg' className='size-5'></Image>
+          </button>
+          <button onClick={() => setActiveTab('trash')}
+            className={`hover:bg-background-border flex items-center justify-center transition ease-in-out duration-250 text-white p-2 w-[70px] ${activeTab === 'trash' ? 'border-b-2 border-bg-background-selected' : 'border-b-2 border-transparent'}`}
+          >
+            <Image path='/icons/trash-gray.svg' className='size-5'></Image>
           </button>
         </div>
       </div>
@@ -105,99 +111,166 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
         />
       </div>
       {/* TAGS TAB */}
-      {viewTags ? (
-        <ul className='flex flex-col gap-2'>
-          {getTagsWithCounts().filter(([tag]) =>
-            // Check if the tag matches the search query
-            tag.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            // Check if any note associated with the tag matches the search query in title or content
-            notes.some(note => note.tags?.includes(tag) &&
-              (note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                note.content.toLowerCase().includes(searchQuery.toLowerCase()))
-            )
-          ).map(([tag, count]) => (
-            <li key={tag} className="cursor-pointer">
-              <div onClick={() => toggleTag(tag)} className="flex justify-between items-center p-2 rounded hover:bg-background-selected text-[#9CA3AF]">
-                <span>{tag} ({count})</span>
-                <span>{expandedTag === tag ? '-' : '+'}</span>
-              </div>
-              {expandedTag === tag && (
-                <ul className="flex flex-col gap-2">
-                  {notes.filter(note =>
-                    // Check if the note belongs to the current tag
-                    note.tags?.includes(tag) &&
-                    // Check if the note title matches the search query
-                    (note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      // Check if the note content matches the search query
-                      note.content.toLowerCase().includes(searchQuery.toLowerCase()))
-                  ).map(note => (
-                    // TAG NOTES LIST
-                    <li key={note.id} className={`cursor-pointer w-full h-[95px] min-h-[80px] gap-2 flex flex-row items-center justify-between p-2 rounded ${note.id === selectedNoteId ? 'bg-background-selected/60' : 'hover:bg-background-selected'
-                    }`} onClick={() => onSelectNote(note.id)}>
-                      <div className='h-full flex items-start justify-start flex-col overflow-x-hidden'>
-                        <p className='text-md'>{note.title}</p>
-                        <div className='w-full flex gap-1'>
-                          <p className="text-xs w-fit min-w-fit text-white/40">
-                            {timeAgo(new Date(note.lastModified))}
-                          </p>
-                          {note.tags && note.tags.length > 0 && (
-                            <ul className="flex flex-row w-auto gap-1 items-start overflow-hidden">
-                              {note.tags.map((tag, index) => (
-                                <li key={index} className="inline-flex items-center justify-center rounded-md bg-gray-400/10 hover:bg-gray-400/20 transition ease-in-out duration-300 py-0.5 px-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20">
-                                  {tag}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                        <p className="text-sm text-white/60">
-                          {getPreview(note.content, 60)}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
-        </ul>
-      ) :
-        (
-          /** NOTES TAB **/
-          <ul className='flex flex-col gap-2'>
-            {sortedNotes.map((note) => (
-              <li
-                key={note.id}
-                className={`cursor-pointer w-full h-[95px] min-h-[80px] gap-2 flex flex-row items-center justify-between p-2 rounded ${note.id === selectedNoteId ? 'bg-background-selected/60' : 'hover:bg-background-selected'
-                  }`}
-                onClick={() => onSelectNote(note.id)}
-              >
-                {/* Note */}
-                <div className='h-full flex items-start justify-start flex-col overflow-x-hidden'>
-                  <p className='text-md'>{note.title}</p>
-                  <div className='w-full flex gap-1'>
-                    <p className="text-xs w-fit min-w-fit text-white/40">
-                      {timeAgo(new Date(note.lastModified))}
-                    </p>
-                    {/* Tags list */}
-                    {note.tags && note.tags.length > 0 && (
-                      <ul className="flex flex-row w-auto gap-1 items-start overflow-hidden">
-                        {note.tags.map((tag, index) => (
-                          <li key={index} className="inline-flex items-center justify-center rounded-md bg-gray-400/10 hover:bg-gray-400/20 transition ease-in-out duration-300 py-0.5 px-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20">
-                            {tag}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+      {activeTab === 'tags' && (
+        <div>
+          <div className='flex flex-row items-center justify-start gap-1'>
+            <h2 className="text-lg font-bold py-2 pl-2">Tags</h2>
+            <p className='text-md font-medium'>{`(${getTagsWithCounts().length})`}</p>
+          </div>
+          {getTagsWithCounts().length === 0 ? (
+            <p className="text-center">No tags created.</p>
+          ) : (
+            <ul className='flex flex-col gap-2'>
+              {getTagsWithCounts().filter(([tag]) =>
+                // Check if the tag matches the search query
+                tag.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                // Check if any note associated with the tag matches the search query in title or content
+                notes.some(note => note.tags?.includes(tag) &&
+                  (note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    note.content.toLowerCase().includes(searchQuery.toLowerCase()))
+                )
+              ).map(([tag, count]) => (
+                <li key={tag} className="cursor-pointer">
+                  <div onClick={() => toggleTag(tag)} className="flex justify-between items-center p-2 rounded hover:bg-background-selected text-[#9CA3AF]">
+                    <span>{tag} ({count})</span>
+                    <span>{expandedTag === tag ? '-' : '+'}</span>
                   </div>
-                  <p className="text-sm text-white/60">
-                    {getPreview(note.content, 60)}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+                  {expandedTag === tag && (
+                    <ul className="flex flex-col gap-2">
+                      {notes.filter(note =>
+                        // Check if the note belongs to the current tag
+                        note.tags?.includes(tag) &&
+                        // Check if the note title matches the search query
+                        (note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          // Check if the note content matches the search query
+                          note.content.toLowerCase().includes(searchQuery.toLowerCase()))
+                      ).map(note => (
+                        // TAG NOTES LIST
+                        <li key={note.id} className={`cursor-pointer w-full h-[95px] min-h-[80px] gap-2 flex flex-row items-center justify-between p-2 rounded ${note.id === selectedNoteId ? 'bg-background-selected/60' : 'hover:bg-background-selected'
+                          }`} onClick={() => onSelectNote(note.id)}>
+                          <div className='h-full flex items-start justify-start flex-col overflow-x-hidden'>
+                            <p className='text-md'>{note.title}</p>
+                            <div className='w-full flex gap-1'>
+                              <p className="text-xs w-fit min-w-fit text-white/40">
+                                {timeAgo(new Date(note.lastModified))}
+                              </p>
+                              {note.tags && note.tags.length > 0 && (
+                                <ul className="flex flex-row w-auto gap-1 items-start overflow-hidden">
+                                  {note.tags.map((tag, index) => (
+                                    <li key={index} className="inline-flex items-center justify-center rounded-md bg-gray-400/10 hover:bg-gray-400/20 transition ease-in-out duration-300 py-0.5 px-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20">
+                                      {tag}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                            <p className="text-sm text-white/60">
+                              {getPreview(note.content, 60)}
+                            </p>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+      {/* NOTES TAB */}
+      {activeTab === 'notes' && (
+        /** NOTES TAB **/
+        <div>
+          <div className='flex flex-row items-center justify-start gap-1'>
+            <h2 className="text-lg font-bold py-2 pl-2">Notes</h2>
+            <p className='text-md font-medium'>{`(${sortedNotes.length})`}</p>
+          </div>
+          {sortedNotes.length === 0 ? (
+            <p className="text-center">No notes created.</p>
+          ) : (
+            <ul className='flex flex-col gap-2'>
+              {sortedNotes.map((note) => (
+                <li
+                  key={note.id}
+                  className={`cursor-pointer w-full h-[95px] min-h-[80px] gap-2 flex flex-row items-center justify-between p-2 rounded ${note.id === selectedNoteId ? 'bg-background-selected/60' : 'hover:bg-background-selected'
+                    }`}
+                  onClick={() => onSelectNote(note.id)}
+                >
+                  {/* Note */}
+                  <div className='h-full flex items-start justify-start flex-col overflow-x-hidden'>
+                    <p className='text-md'>{note.title}</p>
+                    <div className='w-full flex gap-1'>
+                      <p className="text-xs w-fit min-w-fit text-white/40">
+                        {timeAgo(new Date(note.lastModified))}
+                      </p>
+                      {/* Tags list */}
+                      {note.tags && note.tags.length > 0 && (
+                        <ul className="flex flex-row w-auto gap-1 items-start overflow-hidden">
+                          {note.tags.map((tag, index) => (
+                            <li key={index} className="inline-flex items-center justify-center rounded-md bg-gray-400/10 hover:bg-gray-400/20 transition ease-in-out duration-300 py-0.5 px-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20">
+                              {tag}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                    <p className="text-sm text-white/60">
+                      {getPreview(note.content, 60)}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+      {/* TRASH TABS */}
+      {activeTab === 'trash' && (
+        <div>
+          <div className='flex flex-row items-center justify-start gap-1'>
+            <h2 className="text-lg font-bold py-2 pl-2">Trash</h2>
+            <p className='text-md font-medium'>{`(${deletedNotes.length})`}</p>
+          </div>
+          {deletedNotes.length === 0 ? (
+            <p className="text-center">No deleted notes.</p>
+          ) : (
+            <ul className='flex flex-col gap-2'>
+              {deletedNotes.map((note) => (
+                <li
+                  key={note.id}
+                  className={`cursor-pointer w-full h-[95px] min-h-[80px] gap-2 flex flex-row items-center justify-between p-2 rounded ${note.id === selectedNoteId ? 'bg-background-selected/60' : 'hover:bg-background-selected'
+                    }`}
+                  onClick={() => onSelectNote(note.id)}
+                >
+                  {/* Note */}
+                  <div className='h-full flex items-start justify-start flex-col overflow-x-hidden'>
+                    <p className='text-md'>{note.title}</p>
+                    <div className='w-full flex gap-1'>
+                      <p className="text-xs w-fit min-w-fit text-white/40">
+                        {timeAgo(new Date(note.lastModified))}
+                      </p>
+                      {/* Tags list */}
+                      {note.tags && note.tags.length > 0 && (
+                        <ul className="flex flex-row w-auto gap-1 items-start overflow-hidden">
+                          {note.tags.map((tag, index) => (
+                            <li key={index} className="inline-flex items-center justify-center rounded-md bg-gray-400/10 hover:bg-gray-400/20 transition ease-in-out duration-300 py-0.5 px-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20">
+                              {tag}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                    <p className="text-sm text-white/60">
+                      {getPreview(note.content, 60)}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 };

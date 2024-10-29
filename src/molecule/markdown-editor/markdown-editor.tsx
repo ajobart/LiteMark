@@ -4,6 +4,8 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import Image from '../../atoms/image/image';
+import { Note } from '../../types/note.type';
+import { getDeletedNotes } from '../../services/storage.service';
 
 interface MarkdownEditorProps {
   initialTitle: string;
@@ -13,9 +15,11 @@ interface MarkdownEditorProps {
   isSidebarVisible: boolean;
   onDelete: (id: string) => void;
   noteId: string;
+  onRestore: (note: Note) => void;
+  onPermanentlyDelete: (id: string) => void;
 }
 
-const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialContent, initialTags, onSave, isSidebarVisible, onDelete, noteId }) => {
+const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialContent, initialTags, onSave, isSidebarVisible, onDelete, noteId, onRestore, onPermanentlyDelete }) => {
 
   // State for the title of the note
   const [title, setTitle] = useState(initialTitle);
@@ -39,6 +43,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
   const titleRef = useRef<HTMLInputElement>(null);
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  // State to track deleted notes
+  const [deletedNotes, setDeletedNotes] = useState<Note[]>([]);
 
   // Update the local title and content state if `initialTitle` or `initialContent` change
   useEffect(() => {
@@ -88,7 +95,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
         const newTagsSet = new Set([...(tags || []), trimmedTag]);
         // Convert the Set back to an array and update the state
         setTags(Array.from(newTagsSet));
-    }
+      }
 
       // Clear the input field after tag savec
       setTagInput('');
@@ -342,12 +349,20 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
    */
   function handleDeleteClick() {
     onDelete(noteId);
+    // Update the state of deleted notes
+    setDeletedNotes(prev => [...prev, { id: noteId, title, content, tags, lastModified: new Date() }]);
   }
 
   // Function to delete a tag
   function handleTagDelete(tagToDelete: string) {
     setTags((prevTags) => prevTags?.filter(tag => tag !== tagToDelete) || []);
   }
+
+  // Utiliser useEffect pour récupérer les notes supprimées à chaque chargement
+  useEffect(() => {
+    const notes = getDeletedNotes();
+    setDeletedNotes(notes);
+  }, []);
 
   return (
     <div className="w-3/4 p-4 box-border h-screen w-full flex flex-row mt-2 gap-2">
@@ -362,6 +377,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
             onKeyDown={handleTitleKeyDown}
             placeholder="Note Title"
             className={`w-full ${isSidebarVisible ? '' : 'ml-14 mb-4 animation ease-in-out duration-300'} p-0 rounded mb-2 outline-none bg-background-page text-xl font-bold`}
+            readOnly={deletedNotes.some(note => note.id === noteId)}
           />
           {/* Tags Input */}
           <input
@@ -371,6 +387,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
             onKeyDown={handleTagsKeyDown}
             placeholder="Add tags (e.g., #bitcoin)"
             className={`w-full ${isSidebarVisible ? '' : 'ml-14 mb-4 animation ease-in-out duration-300'} p-0 rounded mb-2 outline-none bg-background-page text-xs font-medium`}
+            readOnly={deletedNotes.some(note => note.id === noteId)}
           />
           {/* Tags listing */}
           <div className="flex flex-wrap gap-1 mb-2">
@@ -468,28 +485,69 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
                 <Image path="/icons/export.svg" className='size-5' />
               </button>
             </li>
-            {/* Delete */}
-            <li>
-              <button
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
-                onClick={handleDeleteClick}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-              >
-                <Image path={isHovered ? '/icons/trash-red.svg' : '/icons/trash-gray.svg'} className={`size-5 transition-transform transition-opacity duration-300 ${isHovered ? 'scale-105 opacity-100' : 'scale-100 opacity-50'}`} />
-              </button>
-            </li>
+            {/* Delete - Show only if the note is not deleted */}
+            {!deletedNotes.some(note => note.id === noteId) && (
+              <li>
+                <button
+                  className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  onClick={handleDeleteClick}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                >
+                  <Image path={isHovered ? '/icons/trash-red.svg' : '/icons/trash-gray.svg'} className={`size-5 transition-transform transition-opacity duration-300 ${isHovered ? 'scale-105 opacity-100' : 'scale-100 opacity-100'}`} />
+                </button>
+              </li>
+            )}
+            {/* Restore Button - Show only if the note is deleted */}
+            {deletedNotes.some(note => note.id === noteId) && (
+              <li>
+                <button
+                  onClick={() => onRestore({ id: noteId, title, content, tags, lastModified: new Date() })}
+                  className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                >
+                  <Image path='/icons/restore.svg' className='size-5'></Image>
+                </button>
+              </li>
+            )}
+            {/* Delete Permanently Button - Show only if the note is deleted */}
+            {deletedNotes.some(note => note.id === noteId) && (
+              <li>
+                <button
+                  onClick={() => onPermanentlyDelete(noteId)}
+                  className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                >
+                  <Image path={isHovered ? '/icons/trash-red.svg' : '/icons/trash-gray.svg'} className={`size-5 transition-transform transition-opacity duration-300 ${isHovered ? 'scale-105 opacity-100' : 'scale-100 opacity-100'}`} />
+                </button>
+              </li>
+            )}
           </ul>
         </div>
-        {/* Content Textarea */}
-        <textarea
-          ref={editorRef}
-          value={content}
-          placeholder='Type something here...'
-          onChange={handleContentChange}
-          onScroll={handleEditorScroll}
-          className="w-full resize-none outline-none h-screen p-2 rounded mb-4 bg-background-page"
-        />
+        {/* Content Textarea or Rendered Markdown */}
+        {/* If note is delete show only renderer */}
+        {deletedNotes.some(note => note.id === noteId) ? (
+            <div className="p-4 box-border rounded w-full h-screen max-h-screen overflow-scroll markdown-body">
+                <ReactMarkdown
+                    components={{
+                        a: customLink,
+                        code: customCodeBlock
+                    }}
+                    remarkPlugins={[remarkGfm]}
+                >
+                    {`# ${title}\n\n${typeof content === 'string' ? content : ''}`}
+                </ReactMarkdown>
+            </div>
+        ) : (
+            <textarea
+                ref={editorRef}
+                value={content}
+                placeholder='Type something here...'
+                onChange={handleContentChange}
+                onScroll={handleEditorScroll}
+                className="w-full resize-none outline-none h-screen p-2 rounded mb-4 bg-background-page"
+            />
+        )}
       </div>
       {/* Separator */}
       <div className='h-full w-[2px] bg-background-border'></div>
