@@ -1,18 +1,21 @@
-import { Note } from "../types/note.type";  
+import { Note } from "../types/note.type";
+import { db } from '../services/firebase.service';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
-  // Storage key for notes
-  const STORAGE_KEY = 'notes';
 
-  // Storage key for deleted notes
-  const DELETED_STORAGE_KEY = 'deletedNotes';
+// Storage key for notes
+const STORAGE_KEY = 'notes';
 
-  // Default note
-  const defaultNote: Note = {
-    id: 'default-note',
-    title: 'Bienvenue dans LiteMark',
-    tags: ['#tutorial'],
-    lastModified: new Date(),
-    content: `
+// Storage key for deleted notes
+const DELETED_STORAGE_KEY = 'deletedNotes';
+
+// Default note
+const defaultNote: Note = {
+  id: 'default-note',
+  title: 'Bienvenue dans LiteMark',
+  tags: ['#tutorial'],
+  lastModified: new Date(),
+  content: `
 Ce document est votre première note. Vous pouvez commencer à écrire en Markdown ici.
 Si vous voulez en apprendre plus sur le Mardown, cliquez [ici](https://www.markdownguide.org/getting-started/)
 
@@ -27,15 +30,15 @@ Si vous voulez en apprendre plus sur le Mardown, cliquez [ici](https://www.markd
 
 Amusez-vous bien ! 🎉
 `,
-  };
+};
 
-  // Default long note
-  const defaultLongNote: Note = {
-    id: 'default-long-note',
-    title: 'Long note',
-    tags: ['#tutorial'],
-    lastModified: new Date(),
-    content: `
+// Default long note
+const defaultLongNote: Note = {
+  id: 'default-long-note',
+  title: 'Long note',
+  tags: ['#tutorial'],
+  lastModified: new Date(),
+  content: `
 Lorem ipsum odor amet, consectetuer adipiscing elit. Blandit at adipiscing varius torquent iaculis ipsum quis nunc. Tellus facilisis quisque maximus, ac malesuada vestibulum nascetur tincidunt. Litora volutpat volutpat blandit mollis fames himenaeos parturient nascetur. Convallis montes egestas viverra porttitor rhoncus ligula varius pulvinar class. Feugiat dui ullamcorper senectus est feugiat. Convallis enim facilisi faucibus suspendisse purus nec. Montes litora malesuada viverra enim dictum praesent. Pretium nam natoque, metus molestie integer elementum.
 
 ## Second heading
@@ -62,114 +65,131 @@ Auctor semper vitae; lorem parturient nullam mattis tellus. Enim congue integer 
 ## Nine heading
 Nibh hac gravida aliquet varius; sed porttitor ut. Elementum massa sed nulla dis dolor pretium. Lobortis enim turpis nostra elit eget sapien nisi. Dignissim posuere lectus luctus accumsan netus vulputate. Sem porttitor gravida est placerat parturient. Luctus bibendum mattis sociosqu sagittis sem scelerisque donec praesent potenti. Conubia morbi sed felis aliquet felis habitasse eleifend. Tristique finibus sollicitudin magna eu etiam etiam iaculis. Nunc ridiculus natoque felis ac massa maecenas ut laoreet. Conubia a aptent non vulputate fames sociosqu risus sociosqu.
 `,
-  }
+}
 
-  /**
-   * Function to get deleted notes from localStorage
-   * @returns deletedNotes list
-   */
-  export function getDeletedNotes(): Note[] {
-    const deletedNotes = localStorage.getItem(DELETED_STORAGE_KEY);
-    return deletedNotes ? JSON.parse(deletedNotes) : [];
-  }
+/**
+ * Function to get deleted notes from localStorage
+ * @returns deletedNotes list
+ */
+export function getDeletedNotes(): Note[] {
+  const deletedNotes = localStorage.getItem(DELETED_STORAGE_KEY);
+  return deletedNotes ? JSON.parse(deletedNotes) : [];
+}
 
-  /**
-   * Function to save deleted notes in local storage
-   * @param notes - to save
-   */
-  export function saveDeletedNotes(notes: Note[]): void {
-    localStorage.setItem(DELETED_STORAGE_KEY, JSON.stringify(notes));
-  }
+/**
+ * Function to save deleted notes in local storage
+ * @param notes - to save
+ */
+export function saveDeletedNotes(notes: Note[]): void {
+  localStorage.setItem(DELETED_STORAGE_KEY, JSON.stringify(notes));
+}
 
-  /**
-   * Function to move a note to the recycle bin
-   * @param note - to move
-   */
-  export function moveToRecycleBin(note: Note): void {
-    const deletedNotes = getDeletedNotes();
-    deletedNotes.push(note);
-    saveDeletedNotes(deletedNotes);
-    
-    // Remove the note from the normal notes list
-    const notes = getNotes();
-    const updatedNotes = notes.filter(n => n.id !== note.id);
-    saveNotes(updatedNotes);
-  }
+/**
+ * Function to move a note to the recycle bin
+ * @param note - to move
+ */
+export function moveToRecycleBin(note: Note): void {
+  const deletedNotes = getDeletedNotes();
+  deletedNotes.push(note);
+  saveDeletedNotes(deletedNotes);
 
-  /**
-   * Function to permanently delete a note
-   * @param id - of the note to delete
-   */
-  export function permanentlyDeleteNote(id: string): void {
-    const deletedNotes = getDeletedNotes();
-    const updatedDeletedNotes = deletedNotes.filter(note => note.id !== id);
-    saveDeletedNotes(updatedDeletedNotes);
-  }
+  // Remove the note from the normal notes list
+  const notes = getNotes();
+  const updatedNotes = notes.filter(n => n.id !== note.id);
+  saveNotes(updatedNotes);
+}
 
-  /**
-   * Function to create a default note
-   */
-  export function initializeNotes(): void {
-    const notes = getNotes();
-    const deletedNotes = getDeletedNotes();
+/**
+ * Function to create a default note
+ */
+export function initializeNotes(): void {
+  const notes = getNotes();
+  const deletedNotes = getDeletedNotes();
 
-    // Only add default notes if there are no normal notes and no deleted notes
-    if (notes.length === 0 && deletedNotes.length === 0) {
-        addNote(defaultNote);
-        addNote(defaultLongNote);
-    }
+  // Only add default notes if there are no normal notes and no deleted notes
+  if (notes.length === 0 && deletedNotes.length === 0) {
+    addNote(defaultNote);
+    addNote(defaultLongNote);
   }
-  
-  /**
-   * Function to get notes from localStorage
-   * @returns - JSON object of all notes
-   */
-  export function getNotes(): Note[] {
-    const notes = localStorage.getItem(STORAGE_KEY);
-    return notes ? JSON.parse(notes) : [];
-  }
-  
-  // Function to save notes in local storage
-  export function saveNotes(notes: Note[]): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-  }
+}
 
-  /**
-   * Function to create a note
-   * @param note - The note to create
-   */
-  export function addNote(note: Note): void {
-    const notes = getNotes();
-    notes.push(note);
+/**
+ * Function to get notes from localStorage
+ * @returns - JSON object of all notes
+ */
+export function getNotes(): Note[] {
+  const notes = localStorage.getItem(STORAGE_KEY);
+  return notes ? JSON.parse(notes) : [];
+}
+
+// Function to save notes in local storage
+export function saveNotes(notes: Note[]): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+}
+
+/**
+ * Function to create a note
+ * @param note - The note to create
+ */
+export async function addNote(note: Note): Promise<void> {
+  const notes = getNotes();
+  notes.push(note);
+  saveNotes(notes);
+
+  const counterDocRef = doc(db, 'counters', 'notesCounter');
+  const counterDoc = await getDoc(counterDocRef);
+
+  if (counterDoc.exists()) {
+    // Increment counter
+    await updateDoc(counterDocRef, {
+      count: counterDoc.data().count + 1
+    });
+  }
+};
+
+/**
+ * Function to update a note
+ * @param id - note to update
+ * @param param1 - title, content, and tags object
+ */
+export function updateNote(id: string, { title, content, tags }: { title: string; content: string; tags: string[] }): void {
+  const notes = getNotes();
+  const noteIndex = notes.findIndex(note => note.id === id);
+
+  if (noteIndex !== -1) {
+    // Update the title, content, and tags of the selected note
+    notes[noteIndex].title = title;
+    notes[noteIndex].content = content;
+    notes[noteIndex].tags = tags; // Ensure tags are updated
+    notes[noteIndex].lastModified = new Date();
     saveNotes(notes);
-  };
-  
-  /**
-   * Function to update a note
-   * @param id - note to update
-   * @param param1 - title, content, and tags object
-   */
-  export function updateNote(id: string, { title, content, tags }: { title: string; content: string; tags: string[] }): void {
-    const notes = getNotes();
-    const noteIndex = notes.findIndex(note => note.id === id);
+  }
+};
 
-    if (noteIndex !== -1) {
-      // Update the title, content, and tags of the selected note
-      notes[noteIndex].title = title;
-      notes[noteIndex].content = content;
-      notes[noteIndex].tags = tags; // Ensure tags are updated
-      notes[noteIndex].lastModified = new Date();
-      saveNotes(notes);
-    }
-  };  
-  
-  /**
-   * Function to delete note
-   * @param id - of the note to delete
-   */
-  export function deleteNote(id: string): void {
-    const notes = getNotes();
-    const updatedNotes = notes.filter(note => note.id !== id);
-    saveNotes(updatedNotes);
-  };
-  
+/**
+ * Function to delete note
+ * @param id - of the note to delete
+ */
+export function deleteNote(id: string): void {
+  const notes = getNotes();
+  const updatedNotes = notes.filter(note => note.id !== id);
+  saveNotes(updatedNotes);
+};
+
+/**
+ * Function to permanently delete a note
+ * @param id - of the note to delete
+ */
+export function permanentlyDeleteNote(id: string): void {
+  const deletedNotes = getDeletedNotes();
+  const updatedDeletedNotes = deletedNotes.filter(note => note.id !== id);
+  saveDeletedNotes(updatedDeletedNotes);
+}
+
+/**
+* Function for permanently deleting all notes in the trash
+*/
+export function clearAllDeletedNotes(): void {
+  saveDeletedNotes([]);
+}
+

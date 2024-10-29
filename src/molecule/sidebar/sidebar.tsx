@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Image from '../../atoms/image/image';
 import { Note } from '../../types/note.type';
 import { timeAgo } from '../../services/helper.service';
+import { clearAllDeletedNotes } from '../../services/storage.service';
 
 interface SidebarProps {
   notes: Note[];
@@ -9,9 +10,10 @@ interface SidebarProps {
   onSelectNote: (id: string) => void;
   onCreateNote: () => void;
   deletedNotes: Note[];
+  onClearAllDeletedNotes: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, onCreateNote, deletedNotes }) => {
+const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, onCreateNote, deletedNotes, onClearAllDeletedNotes }) => {
   // State for the value to search
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -63,6 +65,13 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
     return content;
   }
 
+  /**
+   * Function to clear all deleted notes
+   */
+  function handleClearAllDeletedNotes() {
+    clearAllDeletedNotes();
+    onClearAllDeletedNotes();
+  }
 
   return (
     <div className="w-[320px] h-full overflow-scroll bg-background-sidebar p-4 flex flex-col">
@@ -118,7 +127,7 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
             <p className='text-md font-medium'>{`(${getTagsWithCounts().length})`}</p>
           </div>
           {getTagsWithCounts().length === 0 ? (
-            <p className="text-center">No tags created.</p>
+            <p className="text-center mt-4">No tags created.</p>
           ) : (
             <ul className='flex flex-col gap-2'>
               {getTagsWithCounts().filter(([tag]) =>
@@ -187,7 +196,7 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
             <p className='text-md font-medium'>{`(${sortedNotes.length})`}</p>
           </div>
           {sortedNotes.length === 0 ? (
-            <p className="text-center">No notes created.</p>
+            <p className="text-center mt-4">No notes created.</p>
           ) : (
             <ul className='flex flex-col gap-2'>
               {sortedNotes.map((note) => (
@@ -228,12 +237,21 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
       {/* TRASH TABS */}
       {activeTab === 'trash' && (
         <div>
-          <div className='flex flex-row items-center justify-start gap-1'>
-            <h2 className="text-lg font-bold py-2 pl-2">Trash</h2>
-            <p className='text-md font-medium'>{`(${deletedNotes.length})`}</p>
+          {/* Header */}
+          <div className='flex flex-row items-center justify-between'>
+            <div className='flex items-center gap-1'>
+              <h2 className="text-lg font-bold py-2 pl-2">Trash</h2>
+              <p className='text-md font-medium'>{`(${deletedNotes.length})`}</p>
+            </div>
+            <button
+              onClick={handleClearAllDeletedNotes}
+              className="bg-background-border hover:bg-red-400/10 hover:text-red-400 hover:ring-1 hover:ring-inset hover:ring-red-400/20 transition ease-in-out duration-250 text-white text-sm p-1 rounded"
+            >
+              Clear All
+            </button>
           </div>
           {deletedNotes.length === 0 ? (
-            <p className="text-center">No deleted notes.</p>
+            <p className="text-center mt-4">No deleted notes.</p>
           ) : (
             <ul className='flex flex-col gap-2'>
               {deletedNotes.map((note) => (

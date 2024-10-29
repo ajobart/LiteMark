@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../molecule/sidebar/sidebar';
 import MarkdownEditor from '../../molecule/markdown-editor/markdown-editor';
-import { getNotes, addNote, initializeNotes, updateNote, getDeletedNotes, moveToRecycleBin, permanentlyDeleteNote, saveDeletedNotes, saveNotes } from '../../services/storage.service';
+import { getNotes, addNote, initializeNotes, updateNote, getDeletedNotes, clearAllDeletedNotes, moveToRecycleBin, permanentlyDeleteNote, saveDeletedNotes, saveNotes } from '../../services/storage.service';
 import { Note } from '../../types/note.type';
 import Image from '../../atoms/image/image';
 
@@ -24,24 +24,34 @@ const Home: React.FC = () => {
     setIsSidebarVisible(prev => !prev);
   }
 
+  function handleClearAllDeletedNotes() {
+    clearAllDeletedNotes();
+    setDeletedNotes([]);
+    setSelectedNote(null);
+  }
+
   /**
    * Effect to init notes
    */
   useEffect(() => {
-    initializeNotes();
-    const loadedNotes = getNotes();
-    setNotes(loadedNotes.map(note => ({ id: note.id, content: note.content, lastModified: note.lastModified, title: note.title, tags: note.tags })));
-    const loadedDeletedNotes = getDeletedNotes();
-    setDeletedNotes(loadedDeletedNotes);
+    const initialize = async () => {
+        await initializeNotes(); // Attendez que les notes soient initialisées
+        const loadedNotes = getNotes();
+        setNotes(loadedNotes.map(note => ({ id: note.id, content: note.content, lastModified: note.lastModified, title: note.title, tags: note.tags })));
+        const loadedDeletedNotes = getDeletedNotes();
+        setDeletedNotes(loadedDeletedNotes);
 
-    // Select the most recently modified note by default
-    if (loadedNotes.length > 0) {
-      const mostRecentNote = loadedNotes.reduce((prev, current) => {
-        return new Date(prev.lastModified) > new Date(current.lastModified) ? prev : current;
-      });
-      setSelectedNote({ ...mostRecentNote });
-    }
-  }, []);
+        // Select the most recently modified note by default
+        if (loadedNotes.length > 0) {
+            const mostRecentNote = loadedNotes.reduce((prev, current) => {
+                return new Date(prev.lastModified) > new Date(current.lastModified) ? prev : current;
+            });
+            setSelectedNote({ ...mostRecentNote });
+        }
+    };
+
+    initialize(); // Appel de la fonction d'initialisation
+  }, []); // Tableau de dépendances vide pour exécuter l'effet une seule fois
 
   /**
    * Function to save the note's title when changes are made
@@ -155,6 +165,7 @@ const Home: React.FC = () => {
           onSelectNote={handleSelectNote}
           onCreateNote={handleCreateNote}
           deletedNotes={deletedNotes}
+          onClearAllDeletedNotes={handleClearAllDeletedNotes} 
         />
       </div>
       <div className="flex-1 bg-background-page h-screen overflow-hidden">

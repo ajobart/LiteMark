@@ -489,7 +489,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
             {!deletedNotes.some(note => note.id === noteId) && (
               <li>
                 <button
-                  className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  className="bg-background-border hover:bg-red-400/10 hover:ring-1 hover:ring-inset hover:ring-red-400/20 transition ease-in-out duration-250 text-white p-1 rounded"
                   onClick={handleDeleteClick}
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
@@ -503,7 +503,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
               <li>
                 <button
                   onClick={() => onRestore({ id: noteId, title, content, tags, lastModified: new Date() })}
-                  className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  className="bg-background-border hover:bg-red-400/10 hover:ring-1 hover:ring-inset hover:ring-red-400/20 transition ease-in-out duration-250 text-white p-1 rounded"
                 >
                   <Image path='/icons/restore.svg' className='size-5'></Image>
                 </button>
