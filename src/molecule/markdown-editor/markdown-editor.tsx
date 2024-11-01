@@ -21,6 +21,9 @@ interface MarkdownEditorProps {
 
 const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialContent, initialTags, onSave, isSidebarVisible, onDelete, noteId, onRestore, onPermanentlyDelete }) => {
 
+  // To know if is mobile
+  const [isMobile, setIsMobile] = useState(false)
+
   // State for the title of the note
   const [title, setTitle] = useState(initialTitle);
 
@@ -38,6 +41,9 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
 
   // State to track current tag input
   const [tagInput, setTagInput] = useState('');
+
+  // State to know the viewMode
+  const [viewMode, setViewMode] = useState<boolean>(false);
 
   // Refs for the title, textarea and the markdown preview div
   const titleRef = useRef<HTMLInputElement>(null);
@@ -59,6 +65,14 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
       setIsFirstLoad(false);
     }
   }, [initialTitle, initialContent, initialTags, isFirstLoad]);
+
+  // Effect to know if is on mobile
+  // TODO: Check to make it only on server side like in angular project
+  useEffect(() => {
+    if (window.innerWidth < 1000) {
+      setIsMobile(true);
+    }
+  }, [window.innerWidth])
 
   /**
    * Function to handle title change
@@ -358,213 +372,444 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
     setTags((prevTags) => prevTags?.filter(tag => tag !== tagToDelete) || []);
   }
 
+  // Function to change setViewMode
+  function handleViewMode() {
+    setViewMode(!viewMode);
+  }
+
   // Utiliser useEffect pour récupérer les notes supprimées à chaque chargement
   useEffect(() => {
     const notes = getDeletedNotes();
     setDeletedNotes(notes);
   }, []);
 
-  return (
-    <div className="w-3/4 p-4 box-border h-screen w-full flex flex-row mt-2 gap-2">
-      <div className='w-full h-screen overflow-x-hidden max-h-screen overflow-scroll'>
-        <div className='mb-1 pb-4 flex flex-col box-border border-b border-background-border w-full sticky top-0 bg-background-page'>
-          {/* Title Input */}
-          <input
-            ref={titleRef}
-            type="text"
-            value={title}
-            onChange={handleTitleChange}
-            onKeyDown={handleTitleKeyDown}
-            placeholder="Note Title"
-            className={`w-full ${isSidebarVisible ? '' : 'ml-14 mb-4 animation ease-in-out duration-300'} p-0 rounded mb-2 outline-none bg-background-page text-xl font-bold`}
-            readOnly={deletedNotes.some(note => note.id === noteId)}
-          />
-          {/* Tags Input */}
-          <input
-            type="text"
-            value={tagInput}
-            onChange={handleTagsChange}
-            onKeyDown={handleTagsKeyDown}
-            placeholder="Add tags (e.g., #bitcoin)"
-            className={`w-full ${isSidebarVisible ? '' : 'ml-14 mb-4 animation ease-in-out duration-300'} p-0 rounded mb-2 outline-none bg-background-page text-xs font-medium`}
-            readOnly={deletedNotes.some(note => note.id === noteId)}
-          />
-          {/* Tags listing */}
-          <div className="flex flex-wrap gap-1 mb-2">
-            {tags?.map((tag, index) => (
-              <span
-                key={index}
-                className="inline-flex cursor-pointer items-center justify-center rounded-md bg-gray-400/10 hover:bg-gray-400/20 transition ease-in-out duration-300 px-1 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20"
-                onClick={() => handleTagDelete(tag)}
+  /**
+   * Function to render mobile
+   */
+  function renderMobile() {
+    return (
+      <>
+        {/* Read */}
+        {viewMode ? (
+          <>
+            {/* Markdown Renderer */}
+            {/* To fix : onScroll={handlePreviewScroll} */}
+            <div ref={previewRef} className="p-4 box-border rounded w-full h-screen max-h-screen overflow-scroll markdown-body">
+              <ReactMarkdown
+                components={{
+                  // Use custom compnents
+                  a: customLink,
+                  code: customCodeBlock
+                }}
+                remarkPlugins={[remarkGfm]}
               >
-                {tag}
-                <Image path='/icons/cross.svg' className='size-3'></Image>
-              </span>
-            ))}
-          </div>
-          {/* TOOLBAR */}
-          <ul className='flex w-full gap-1.5'>
-            {/* Insert h1 */}
-            <li>
-              <button
-                onClick={handleH1Click}
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
-              >
-                <Image path="/icons/h1.svg" className='size-5' />
-              </button>
-            </li>
-            {/* Insert h2 */}
-            <li>
-              <button
-                onClick={handleH2Click}
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
-              >
-                <Image path="/icons/h2.svg" className='size-5' />
-              </button>
-            </li>
-            {/* Insert bold */}
-            <li>
-              <button
-                onClick={handleBoldClick}
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
-              >
-                <Image path="/icons/bold.svg" className='size-5' />
-              </button>
-            </li>
-            {/* Insert italic */}
-            <li>
-              <button
-                onClick={handleItalicClick}
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
-              >
-                <Image path="/icons/italic.svg" className='size-5' />
-              </button>
-            </li>
-            {/* Insert table */}
-            <li>
-              <button
-                onClick={handleTableClick}
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
-              >
-                <Image path="/icons/table.svg" className='size-5' />
-              </button>
-            </li>
-            {/* Insert checkbox */}
-            <li>
-              <button
-                onClick={handleCheckboxClick}
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
-              >
-                <Image path="/icons/checkbox.svg" className='size-5' />
-              </button>
-            </li>
-            {/* Insert link */}
-            <li>
-              <button
-                onClick={handleLinkClick}
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
-              >
-                <Image path="/icons/link.svg" className='size-5' />
-              </button>
-            </li>
-            {/* Insert code */}
-            <li>
-              <button
-                onClick={handleCodeClick}
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
-              >
-                <Image path="/icons/code.svg" className='size-5' />
-              </button>
-            </li>
-            {/* Export */}
-            <li>
-              <button
-                onClick={exportNote}
-                className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
-              >
-                <Image path="/icons/export.svg" className='size-5' />
-              </button>
-            </li>
-            {/* Delete - Show only if the note is not deleted */}
-            {!deletedNotes.some(note => note.id === noteId) && (
-              <li>
-                <button
-                  className="bg-background-border hover:bg-red-400/10 hover:ring-1 hover:ring-inset hover:ring-red-400/20 transition ease-in-out duration-250 text-white p-1 rounded"
-                  onClick={handleDeleteClick}
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                >
-                  <Image path={isHovered ? '/icons/trash-red.svg' : '/icons/trash-gray.svg'} className={`size-5 transition-transform transition-opacity duration-300 ${isHovered ? 'scale-105 opacity-100' : 'scale-100 opacity-100'}`} />
-                </button>
-              </li>
-            )}
-            {/* Restore Button - Show only if the note is deleted */}
-            {deletedNotes.some(note => note.id === noteId) && (
-              <li>
-                <button
-                  onClick={() => onRestore({ id: noteId, title, content, tags, lastModified: new Date() })}
-                  className="bg-background-border hover:bg-red-400/10 hover:ring-1 hover:ring-inset hover:ring-red-400/20 transition ease-in-out duration-250 text-white p-1 rounded"
-                >
-                  <Image path='/icons/restore.svg' className='size-5'></Image>
-                </button>
-              </li>
-            )}
-            {/* Delete Permanently Button - Show only if the note is deleted */}
-            {deletedNotes.some(note => note.id === noteId) && (
-              <li>
-                <button
-                  onClick={() => onPermanentlyDelete(noteId)}
-                  className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
-                  onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
-                >
-                  <Image path={isHovered ? '/icons/trash-red.svg' : '/icons/trash-gray.svg'} className={`size-5 transition-transform transition-opacity duration-300 ${isHovered ? 'scale-105 opacity-100' : 'scale-100 opacity-100'}`} />
-                </button>
-              </li>
-            )}
-          </ul>
-        </div>
-        {/* Content Textarea or Rendered Markdown */}
-        {/* If note is delete show only renderer */}
-        {deletedNotes.some(note => note.id === noteId) ? (
-            <div className="p-4 box-border rounded w-full h-screen max-h-screen overflow-scroll markdown-body">
-                <ReactMarkdown
-                    components={{
-                        a: customLink,
-                        code: customCodeBlock
-                    }}
-                    remarkPlugins={[remarkGfm]}
-                >
-                    {`# ${title}\n\n${typeof content === 'string' ? content : ''}`}
-                </ReactMarkdown>
+                {`# ${title}\n\n${typeof content === 'string' ? content : ''}`}
+              </ReactMarkdown>
             </div>
+          </>
         ) : (
-            <textarea
+          <div className='w-full max-w-full flex flex-col items-center justify-start h-screen overflow-x-hidden max-h-screen overflow-scroll'>
+            <div className='mb-1 pb-4 flex flex-col box-border border-b border-background-border w-full sticky top-0 bg-background-page'>
+              {/* Title Input */}
+              <input
+                ref={titleRef}
+                type="text"
+                value={title}
+                onChange={handleTitleChange}
+                onKeyDown={handleTitleKeyDown}
+                placeholder="Note Title"
+                className={`w-full ${isSidebarVisible ? '' : 'ml-14 mb-4 animation ease-in-out duration-300'} p-0 rounded mb-2 outline-none bg-background-page text-xl font-bold`}
+                readOnly={deletedNotes.some(note => note.id === noteId)}
+              />
+              {/* Tags Input */}
+              <input
+                type="text"
+                value={tagInput}
+                onChange={handleTagsChange}
+                onKeyDown={handleTagsKeyDown}
+                placeholder="Add tags (e.g., #bitcoin)"
+                className={`w-full ${isSidebarVisible ? '' : 'ml-14 mb-4 animation ease-in-out duration-300'} p-0 rounded mb-2 outline-none bg-background-page text-xs font-medium`}
+                readOnly={deletedNotes.some(note => note.id === noteId)}
+              />
+              {/* Tags listing */}
+              <div className="flex flex-wrap gap-1 mb-2">
+                {tags?.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex cursor-pointer items-center justify-center rounded-md bg-gray-400/10 hover:bg-gray-400/20 transition ease-in-out duration-300 px-1 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20"
+                    onClick={() => handleTagDelete(tag)}
+                  >
+                    {tag}
+                    <Image path='/icons/cross.svg' className='size-3'></Image>
+                  </span>
+                ))}
+              </div>
+              {/* TOOLBAR */}
+              <ul className='flex w-full gap-1.5'>
+                {/* Insert h1 */}
+                <li>
+                  <button
+                    onClick={handleH1Click}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/h1.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert h2 */}
+                <li>
+                  <button
+                    onClick={handleH2Click}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/h2.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert bold */}
+                <li>
+                  <button
+                    onClick={handleBoldClick}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/bold.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert italic */}
+                <li>
+                  <button
+                    onClick={handleItalicClick}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/italic.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert table */}
+                <li>
+                  <button
+                    onClick={handleTableClick}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/table.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert checkbox */}
+                <li>
+                  <button
+                    onClick={handleCheckboxClick}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/checkbox.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert link */}
+                <li>
+                  <button
+                    onClick={handleLinkClick}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/link.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert code */}
+                <li>
+                  <button
+                    onClick={handleCodeClick}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/code.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Export */}
+                <li>
+                  <button
+                    onClick={exportNote}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/export.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Delete - Show only if the note is not deleted */}
+                {!deletedNotes.some(note => note.id === noteId) && (
+                  <li>
+                    <button
+                      className="bg-background-border hover:bg-red-400/10 hover:ring-1 hover:ring-inset hover:ring-red-400/20 transition ease-in-out duration-250 text-white p-1 rounded"
+                      onClick={handleDeleteClick}
+                      onMouseEnter={() => setIsHovered(true)}
+                      onMouseLeave={() => setIsHovered(false)}
+                    >
+                      <Image path={isHovered ? '/icons/trash-red.svg' : '/icons/trash-gray.svg'} className={`size-5 transition-transform transition-opacity duration-300 ${isHovered ? 'scale-105 opacity-100' : 'scale-100 opacity-100'}`} />
+                    </button>
+                  </li>
+                )}
+                {/* Restore Button - Show only if the note is deleted */}
+                {deletedNotes.some(note => note.id === noteId) && (
+                  <li>
+                    <button
+                      onClick={() => onRestore({ id: noteId, title, content, tags, lastModified: new Date() })}
+                      className="bg-background-border hover:bg-red-400/10 hover:ring-1 hover:ring-inset hover:ring-red-400/20 transition ease-in-out duration-250 text-white p-1 rounded"
+                    >
+                      <Image path='/icons/restore.svg' className='size-5'></Image>
+                    </button>
+                  </li>
+                )}
+                {/* Delete Permanently Button - Show only if the note is deleted */}
+                {deletedNotes.some(note => note.id === noteId) && (
+                  <li>
+                    <button
+                      onClick={() => onPermanentlyDelete(noteId)}
+                      className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                      onMouseEnter={() => setIsHovered(true)}
+                      onMouseLeave={() => setIsHovered(false)}
+                    >
+                      <Image path={isHovered ? '/icons/trash-red.svg' : '/icons/trash-gray.svg'} className={`size-5 transition-transform transition-opacity duration-300 ${isHovered ? 'scale-105 opacity-100' : 'scale-100 opacity-100'}`} />
+                    </button>
+                  </li>
+                )}
+              </ul>
+            </div>
+            {/* Content Textarea or Rendered Markdown */}
+            {/* If note is delete show only renderer */}
+            {deletedNotes.some(note => note.id === noteId) ? (
+              <div className="p-4 box-border rounded w-full h-screen max-h-screen overflow-scroll markdown-body">
+                <ReactMarkdown
+                  components={{
+                    a: customLink,
+                    code: customCodeBlock
+                  }}
+                  remarkPlugins={[remarkGfm]}
+                >
+                  {`# ${title}\n\n${typeof content === 'string' ? content : ''}`}
+                </ReactMarkdown>
+              </div>
+            ) : (
+              <textarea
                 ref={editorRef}
                 value={content}
-                placeholder='Type something here...'
+                placeholder='Just write something'
                 onChange={handleContentChange}
                 onScroll={handleEditorScroll}
                 className="w-full resize-none outline-none h-screen p-2 rounded mb-4 bg-background-page"
-            />
+              />
+            )}
+          </div>
         )}
-      </div>
-      {/* Separator */}
-      <div className='h-full w-[2px] bg-background-border'></div>
-      {/* Markdown Renderer */}
-      {/* To fix : onScroll={handlePreviewScroll} */}
-      <div ref={previewRef} className="p-4 box-border rounded w-full h-screen max-h-screen overflow-scroll markdown-body">
-        <ReactMarkdown
-          components={{
-            // Use custom compnents
-            a: customLink,
-            code: customCodeBlock
-          }}
-          remarkPlugins={[remarkGfm]}
-        >
-          {`# ${title}\n\n${typeof content === 'string' ? content : ''}`}
-        </ReactMarkdown>
-      </div>
+      </>
+    )
+  }
+
+  return (
+    <div className="relative w-3/4 p-4 box-border h-screen w-full flex flex-row mt-2 gap-2">
+      {!isMobile ? (
+        <>
+          <div className='w-full h-screen overflow-x-hidden max-h-screen overflow-scroll'>
+            <div className='mb-1 pb-4 flex flex-col box-border border-b border-background-border w-full sticky top-0 bg-background-page'>
+              {/* Title Input */}
+              <input
+                ref={titleRef}
+                type="text"
+                value={title}
+                onChange={handleTitleChange}
+                onKeyDown={handleTitleKeyDown}
+                placeholder="Note Title"
+                className={`w-full ${isSidebarVisible ? '' : 'ml-14 mb-4 animation ease-in-out duration-300'} p-0 rounded mb-2 outline-none bg-background-page text-xl font-bold`}
+                readOnly={deletedNotes.some(note => note.id === noteId)}
+              />
+              {/* Tags Input */}
+              <input
+                type="text"
+                value={tagInput}
+                onChange={handleTagsChange}
+                onKeyDown={handleTagsKeyDown}
+                placeholder="Add tags (e.g., #bitcoin)"
+                className={`w-full ${isSidebarVisible ? '' : 'ml-14 mb-4 animation ease-in-out duration-300'} p-0 rounded mb-2 outline-none bg-background-page text-xs font-medium`}
+                readOnly={deletedNotes.some(note => note.id === noteId)}
+              />
+              {/* Tags listing */}
+              <div className="flex flex-wrap gap-1 mb-2">
+                {tags?.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex cursor-pointer items-center justify-center rounded-md bg-gray-400/10 hover:bg-gray-400/20 transition ease-in-out duration-300 px-1 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-400/20"
+                    onClick={() => handleTagDelete(tag)}
+                  >
+                    {tag}
+                    <Image path='/icons/cross.svg' className='size-3'></Image>
+                  </span>
+                ))}
+              </div>
+              {/* TOOLBAR */}
+              <ul className='flex w-full gap-1.5'>
+                {/* Insert h1 */}
+                <li>
+                  <button
+                    onClick={handleH1Click}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/h1.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert h2 */}
+                <li>
+                  <button
+                    onClick={handleH2Click}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/h2.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert bold */}
+                <li>
+                  <button
+                    onClick={handleBoldClick}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/bold.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert italic */}
+                <li>
+                  <button
+                    onClick={handleItalicClick}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/italic.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert table */}
+                <li>
+                  <button
+                    onClick={handleTableClick}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/table.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert checkbox */}
+                <li>
+                  <button
+                    onClick={handleCheckboxClick}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/checkbox.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert link */}
+                <li>
+                  <button
+                    onClick={handleLinkClick}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/link.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Insert code */}
+                <li>
+                  <button
+                    onClick={handleCodeClick}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/code.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Export */}
+                <li>
+                  <button
+                    onClick={exportNote}
+                    className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                  >
+                    <Image path="/icons/export.svg" className='size-5' />
+                  </button>
+                </li>
+                {/* Delete - Show only if the note is not deleted */}
+                {!deletedNotes.some(note => note.id === noteId) && (
+                  <li>
+                    <button
+                      className="bg-background-border hover:bg-red-400/10 hover:ring-1 hover:ring-inset hover:ring-red-400/20 transition ease-in-out duration-250 text-white p-1 rounded"
+                      onClick={handleDeleteClick}
+                      onMouseEnter={() => setIsHovered(true)}
+                      onMouseLeave={() => setIsHovered(false)}
+                    >
+                      <Image path={isHovered ? '/icons/trash-red.svg' : '/icons/trash-gray.svg'} className={`size-5 transition-transform transition-opacity duration-300 ${isHovered ? 'scale-105 opacity-100' : 'scale-100 opacity-100'}`} />
+                    </button>
+                  </li>
+                )}
+                {/* Restore Button - Show only if the note is deleted */}
+                {deletedNotes.some(note => note.id === noteId) && (
+                  <li>
+                    <button
+                      onClick={() => onRestore({ id: noteId, title, content, tags, lastModified: new Date() })}
+                      className="bg-background-border hover:bg-red-400/10 hover:ring-1 hover:ring-inset hover:ring-red-400/20 transition ease-in-out duration-250 text-white p-1 rounded"
+                    >
+                      <Image path='/icons/restore.svg' className='size-5'></Image>
+                    </button>
+                  </li>
+                )}
+                {/* Delete Permanently Button - Show only if the note is deleted */}
+                {deletedNotes.some(note => note.id === noteId) && (
+                  <li>
+                    <button
+                      onClick={() => onPermanentlyDelete(noteId)}
+                      className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                      onMouseEnter={() => setIsHovered(true)}
+                      onMouseLeave={() => setIsHovered(false)}
+                    >
+                      <Image path={isHovered ? '/icons/trash-red.svg' : '/icons/trash-gray.svg'} className={`size-5 transition-transform transition-opacity duration-300 ${isHovered ? 'scale-105 opacity-100' : 'scale-100 opacity-100'}`} />
+                    </button>
+                  </li>
+                )}
+              </ul>
+            </div>
+            {/* Content Textarea or Rendered Markdown */}
+            {/* If note is delete show only renderer */}
+            {deletedNotes.some(note => note.id === noteId) ? (
+              <div className="p-4 box-border rounded w-full h-screen max-h-screen overflow-scroll markdown-body">
+                <ReactMarkdown
+                  components={{
+                    a: customLink,
+                    code: customCodeBlock
+                  }}
+                  remarkPlugins={[remarkGfm]}
+                >
+                  {`# ${title}\n\n${typeof content === 'string' ? content : ''}`}
+                </ReactMarkdown>
+              </div>
+            ) : (
+              <textarea
+                ref={editorRef}
+                value={content}
+                placeholder='Just write something'
+                onChange={handleContentChange}
+                onScroll={handleEditorScroll}
+                className="w-full resize-none outline-none h-screen p-2 rounded mb-4 bg-background-page"
+              />
+            )}
+          </div>
+          {/* Separator */}
+          <div className='h-full w-[2px] bg-background-border'></div>
+          {/* Markdown Renderer */}
+          {/* To fix : onScroll={handlePreviewScroll} */}
+          <div ref={previewRef} className="p-4 box-border rounded w-full h-screen max-h-screen overflow-scroll markdown-body">
+            <ReactMarkdown
+              components={{
+                // Use custom compnents
+                a: customLink,
+                code: customCodeBlock
+              }}
+              remarkPlugins={[remarkGfm]}
+            >
+              {`# ${title}\n\n${typeof content === 'string' ? content : ''}`}
+            </ReactMarkdown>
+          </div>
+        </>
+      ) :
+        (
+          <>
+            <button className='absolute top-2 right-2 z-50' onClick={handleViewMode}>
+              <Image path={viewMode ? '/icons/book.svg' : '/icons/eye.svg'} className='size-6'></Image>
+            </button>
+            {renderMobile()}
+          </>
+        )
+      }
     </div >
   );
 };

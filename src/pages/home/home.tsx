@@ -7,6 +7,9 @@ import Image from '../../atoms/image/image';
 
 const Home: React.FC = () => {
 
+    // To know if is mobile
+    const [isMobile, setIsMobile] = useState(false)
+
   // State for list of notes
   const [notes, setNotes] = useState<Note[]>([]);
 
@@ -19,23 +22,12 @@ const Home: React.FC = () => {
   // State to control sidebar visibility
   const [isSidebarVisible, setIsSidebarVisible] = useState<boolean>(true);
 
-  // Function to toggle sidebar visibility
-  function toggleSidebar() {
-    setIsSidebarVisible(prev => !prev);
-  }
-
-  function handleClearAllDeletedNotes() {
-    clearAllDeletedNotes();
-    setDeletedNotes([]);
-    setSelectedNote(null);
-  }
-
   /**
    * Effect to init notes
    */
   useEffect(() => {
     const initialize = async () => {
-        await initializeNotes(); // Attendez que les notes soient initialisées
+        await initializeNotes();
         const loadedNotes = getNotes();
         setNotes(loadedNotes.map(note => ({ id: note.id, content: note.content, lastModified: note.lastModified, title: note.title, tags: note.tags })));
         const loadedDeletedNotes = getDeletedNotes();
@@ -50,8 +42,27 @@ const Home: React.FC = () => {
         }
     };
 
-    initialize(); // Appel de la fonction d'initialisation
-  }, []); // Tableau de dépendances vide pour exécuter l'effet une seule fois
+    initialize();
+  }, []);
+
+    // Effect to know if is on mobile
+  // TODO: Check to make it only on server side like in angular project
+  useEffect(() => {
+    if (window.innerWidth < 1000) {
+      setIsMobile(true);
+    }
+  }, [window.innerWidth])
+
+   // Function to toggle sidebar visibility
+   function toggleSidebar() {
+    setIsSidebarVisible(prev => !prev);
+  }
+
+  function handleClearAllDeletedNotes() {
+    clearAllDeletedNotes();
+    setDeletedNotes([]);
+    setSelectedNote(null);
+  }
 
   /**
    * Function to save the note's title when changes are made
@@ -156,7 +167,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="w-full h-screen max-h-screen overflow-hidden flex">
-      <div className={`h-screen transition-all duration-300 ${isSidebarVisible ? 'w-[320px]' : 'w-0 overflow-hidden'}`}>
+      <div className={`h-screen transition-all duration-300 ${!isMobile ? (isSidebarVisible ? 'w-[320px]' : 'w-0 overflow-hidden') : (isSidebarVisible ? 'w-full' : 'w-0 overflow-hidden')}`}>
         <Sidebar
           // Force re-render when the number of notes changes
           key={notes.length}

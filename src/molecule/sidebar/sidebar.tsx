@@ -74,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
   }
 
   return (
-    <div className="w-[320px] h-full overflow-scroll bg-background-sidebar p-4 flex flex-col">
+    <div className="w-full h-full overflow-scroll bg-background-sidebar p-4 flex flex-col">
       <div className='flex items-center justify-center w-full'>
         <Image path='/images/litemark-test.png' className='size-16'></Image>
         <h1 className="text-center text-2xl my-4">LiteMark</h1>
