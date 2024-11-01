@@ -6,6 +6,7 @@ import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import Image from '../../atoms/image/image';
 import { Note } from '../../types/note.type';
 import { getDeletedNotes } from '../../services/storage.service';
+import {gemoji} from 'https://esm.sh/gemoji@8'
 
 interface MarkdownEditorProps {
   initialTitle: string;
@@ -382,6 +383,18 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
     const notes = getDeletedNotes();
     setDeletedNotes(notes);
   }, []);
+
+  /**
+   * Function to replace text with emoji
+   * @param content 
+   * @returns 
+   */
+  function replaceEmojis(content: string): string {
+    return content.replace(/:([a-zA-Z0-9_+-]+):/g, (match, p1) => {
+      const emojiData = gemoji.find(g => g.names.includes(p1));
+      return emojiData ? emojiData.emoji : match;
+    });
+  }
 
   /**
    * Function to render mobile
@@ -796,8 +809,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
               }}
               remarkPlugins={[remarkGfm]}
             >
-              {`# ${title}\n\n${typeof content === 'string' ? content : ''}`}
-            </ReactMarkdown>
+  {`# ${title}\n\n${typeof content === 'string' ? replaceEmojis(content) : ''}`}
+  </ReactMarkdown>
           </div>
         </>
       ) :
