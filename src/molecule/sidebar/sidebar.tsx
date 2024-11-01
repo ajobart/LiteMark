@@ -74,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
   }
 
   return (
-    <div className="w-full h-full overflow-scroll bg-background-sidebar p-4 flex flex-col">
+    <div className="w- h-full overflow-scroll bg-background-sidebar p-4 flex flex-col">
       <div className='flex items-center justify-center w-full'>
         <Image path='/images/litemark-test.png' className='size-16'></Image>
         <h1 className="text-center text-2xl my-4">LiteMark</h1>
@@ -157,7 +157,7 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
                         // TAG NOTES LIST
                         <li key={note.id} className={`cursor-pointer w-full h-[95px] min-h-[80px] gap-2 flex flex-row items-center justify-between p-2 rounded ${note.id === selectedNoteId ? 'bg-background-selected/60' : 'hover:bg-background-selected'
                           }`} onClick={() => onSelectNote(note.id)}>
-                          <div className='h-full flex items-start justify-start flex-col overflow-x-hidden'>
+                          <div className='h-full flex items-start justify-start flex-col overflow-hidden'>
                             <p className='text-md'>{note.title}</p>
                             <div className='w-full flex gap-1'>
                               <p className="text-xs w-fit min-w-fit text-white/40">
@@ -207,7 +207,7 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
                   onClick={() => onSelectNote(note.id)}
                 >
                   {/* Note */}
-                  <div className='h-full flex items-start justify-start flex-col overflow-x-hidden'>
+                  <div className='h-full flex items-start justify-start flex-col overflow-hidden'>
                     <p className='text-md'>{note.title}</p>
                     <div className='w-full flex gap-1'>
                       <p className="text-xs w-fit min-w-fit text-white/40">
@@ -262,7 +262,7 @@ const Sidebar: React.FC<SidebarProps> = ({ notes, selectedNoteId, onSelectNote, 
                   onClick={() => onSelectNote(note.id)}
                 >
                   {/* Note */}
-                  <div className='h-full flex items-start justify-start flex-col overflow-x-hidden'>
+                  <div className='h-full flex items-start justify-start flex-col overflow-hidden'>
                     <p className='text-md'>{note.title}</p>
                     <div className='w-full flex gap-1'>
                       <p className="text-xs w-fit min-w-fit text-white/40">
