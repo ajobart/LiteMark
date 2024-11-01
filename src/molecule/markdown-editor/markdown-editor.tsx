@@ -6,7 +6,8 @@ import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import Image from '../../atoms/image/image';
 import { Note } from '../../types/note.type';
 import { getDeletedNotes } from '../../services/storage.service';
-import {gemoji} from 'https://esm.sh/gemoji@8'
+import { gemoji } from 'gemoji';
+import { gemojiType } from '../../types/gemoji.type'
 
 interface MarkdownEditorProps {
   initialTitle: string;
@@ -391,7 +392,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
    */
   function replaceEmojis(content: string): string {
     return content.replace(/:([a-zA-Z0-9_+-]+):/g, (match, p1) => {
-      const emojiData = gemoji.find(g => g.names.includes(p1));
+      const emojiData = gemoji.find((g: gemojiType) => g.names.includes(p1));
       return emojiData ? emojiData.emoji : match;
     });
   }
@@ -416,8 +417,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
                 }}
                 remarkPlugins={[remarkGfm]}
               >
-                {`# ${title}\n\n${typeof content === 'string' ? content : ''}`}
-              </ReactMarkdown>
+  {`# ${title}\n\n${typeof content === 'string' ? replaceEmojis(content) : ''}`}
+  </ReactMarkdown>
             </div>
           </>
         ) : (
@@ -590,8 +591,8 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ initialTitle, initialCo
                   }}
                   remarkPlugins={[remarkGfm]}
                 >
-                  {`# ${title}\n\n${typeof content === 'string' ? content : ''}`}
-                </ReactMarkdown>
+  {`# ${title}\n\n${typeof content === 'string' ? replaceEmojis(content) : ''}`}
+  </ReactMarkdown>
               </div>
             ) : (
               <textarea
