@@ -426,7 +426,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                         {/* Markdown Renderer */}
                         {/* To fix : onScroll={handlePreviewScroll} */}
                         <div ref={previewRef}
-                            className="p-4 box-border rounded w-full h-screen max-h-screen overflow-scroll markdown-body">
+                            className="p-4 pt-6 box-border rounded w-full h-screen max-h-screen overflow-y-scroll overflow-x-hidden markdown-body">
                             <ReactMarkdown
                                 components={{
                                     // Use custom compnents
