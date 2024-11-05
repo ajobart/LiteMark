@@ -686,7 +686,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                 <li>
                                     <button
                                         onClick={handleH1Click}
-                                        className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                                        className="hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
                                     >
                                         <Image path="/icons/h1.svg" className='size-5' />
                                     </button>
@@ -695,7 +695,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                 <li>
                                     <button
                                         onClick={handleH2Click}
-                                        className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                                        className="hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
                                     >
                                         <Image path="/icons/h2.svg" className='size-5' />
                                     </button>
@@ -704,7 +704,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                 <li>
                                     <button
                                         onClick={handleBoldClick}
-                                        className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                                        className="hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
                                     >
                                         <Image path="/icons/bold.svg" className='size-5' />
                                     </button>
@@ -713,7 +713,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                 <li>
                                     <button
                                         onClick={handleItalicClick}
-                                        className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                                        className="hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
                                     >
                                         <Image path="/icons/italic.svg" className='size-5' />
                                     </button>
@@ -722,7 +722,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                 <li>
                                     <button
                                         onClick={handleTableClick}
-                                        className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                                        className="hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
                                     >
                                         <Image path="/icons/table.svg" className='size-5' />
                                     </button>
@@ -731,7 +731,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                 <li>
                                     <button
                                         onClick={handleCheckboxClick}
-                                        className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                                        className="hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
                                     >
                                         <Image path="/icons/checkbox.svg" className='size-5' />
                                     </button>
@@ -740,7 +740,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                 <li>
                                     <button
                                         onClick={handleLinkClick}
-                                        className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                                        className="hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
                                     >
                                         <Image path="/icons/link.svg" className='size-5' />
                                     </button>
@@ -749,7 +749,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                 <li>
                                     <button
                                         onClick={handleCodeClick}
-                                        className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                                        className="hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
                                     >
                                         <Image path="/icons/code.svg" className='size-5' />
                                     </button>
@@ -758,7 +758,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                 <li>
                                     <button
                                         onClick={exportNote}
-                                        className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                                        className="hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
                                     >
                                         <Image path="/icons/export.svg" className='size-5' />
                                     </button>
@@ -767,7 +767,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                 {!deletedNotes.some(note => note.id === noteId) && (
                                     <li>
                                         <button
-                                            className="bg-background-border hover:bg-red-400/10 hover:ring-1 hover:ring-inset hover:ring-red-400/20 transition ease-in-out duration-250 text-white p-1 rounded"
+                                            className="hover:bg-red-400/10 hover:ring-1 hover:ring-inset hover:ring-red-400/20 transition ease-in-out duration-250 text-white p-1 rounded"
                                             onClick={handleDeleteClick}
                                             onMouseEnter={() => setIsHovered(true)}
                                             onMouseLeave={() => setIsHovered(false)}
@@ -788,7 +788,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                                 tags,
                                                 lastModified: new Date()
                                             })}
-                                            className="bg-background-border hover:bg-red-400/10 hover:ring-1 hover:ring-inset hover:ring-red-400/20 transition ease-in-out duration-250 text-white p-1 rounded"
+                                            className="hover:bg-red-400/10 hover:ring-1 hover:ring-inset hover:ring-red-400/20 transition ease-in-out duration-250 text-white p-1 rounded"
                                         >
                                             <Image path='/icons/restore.svg' className='size-5'></Image>
                                         </button>
@@ -799,7 +799,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
                                     <li>
                                         <button
                                             onClick={() => onPermanentlyDelete(noteId)}
-                                            className="bg-background-border hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
+                                            className="hover:bg-background-selected transition ease-in-out duration-250 text-white p-1 rounded"
                                             onMouseEnter={() => setIsHovered(true)}
                                             onMouseLeave={() => setIsHovered(false)}
                                         >
