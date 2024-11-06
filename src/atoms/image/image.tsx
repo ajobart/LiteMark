@@ -16,7 +16,7 @@ interface ImageProps {
 
 const Image: FC<ImageProps> = ({className = '', path= '', alt= '', click}) => {
 
-    const basePath = '/LiteMark'; // Chemin de base pour GitHub Pages
+    const basePath = '/LiteMark';
     const fullPath = `${basePath}${path.startsWith('/') ? path : `/${path}`}`;
 
     return (
