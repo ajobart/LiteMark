@@ -4,7 +4,7 @@ import Home from './pages/home/home';
 
 const App: React.FC = () => {
   return (
-    <Router basename={import.meta.env.VITE_BASE_URL}>
+    <Router basename={import.meta.env.VITE_BASE_URL.replace(/\/$/, '')}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="*" element={<Home />} />
