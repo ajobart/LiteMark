@@ -15,13 +15,15 @@ interface ImageProps {
 }
 
 // The baseURL
-const baseURL = import.meta.env.VITE_BASE_URL || '';
+const baseURL = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
 
 const Image: FC<ImageProps> = ({className = '', path= '', alt= '', click}) => {
 
+    const fullPath = `${baseURL}${path.startsWith('/') ? path : `/${path}`}`;
+
     return (
         <>
-            <img className={`${className}`} src={baseURL + path} alt={alt} onClick={click} />
+            <img className={`${className}`} src={fullPath} alt={alt} onClick={click} />
         </>
     )
 }
