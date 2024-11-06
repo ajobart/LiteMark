@@ -14,16 +14,11 @@ interface ImageProps {
     click?: React.MouseEventHandler<HTMLElement>
 }
 
-// The baseURL with env variable
-const baseURL = import.meta.env.VITE_BASE_URL.replace(/\/$/, '');
-
 const Image: FC<ImageProps> = ({className = '', path= '', alt= '', click}) => {
-
-    const fullPath = `${baseURL}${path.startsWith('/') ? path : `/${path}`}`;
 
     return (
         <>
-            <img className={`${className}`} src={fullPath} alt={alt} onClick={click} />
+            <img className={`${className}`} src={path} alt={alt} onClick={click} />
         </>
     )
 }
