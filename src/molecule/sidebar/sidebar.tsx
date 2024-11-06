@@ -32,9 +32,9 @@ const Sidebar: React.FC<SidebarProps> = ({
 
     // Filter notes based on the search query
     const filteredNotes = notes.filter(note =>
-        note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (note.tags && note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())))
+        (note.title && note.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (note.content && note.content.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (note.tags && note.tags.some(tag => tag && tag.toLowerCase().includes(searchQuery.toLowerCase())))
     );
 
     /**
@@ -140,18 +140,20 @@ const Sidebar: React.FC<SidebarProps> = ({
                         <ul className='flex flex-col gap-2'>
                             {getTagsWithCounts().filter(([tag]) =>
                                 tag.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                notes.some(note => note.tags?.includes(tag) &&
-                                    (note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                        note.content.toLowerCase().includes(searchQuery.toLowerCase()))
+                                notes.some(note =>
+                                    note.tags?.includes(tag) &&
+                                    ((note.title && note.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                                        (note.content && note.content.toLowerCase().includes(searchQuery.toLowerCase())))
                                 )
                             ).length === 0 ? (
                                 <p className="text-center mt-4">No results found</p>
                             ) : (
                                 getTagsWithCounts().filter(([tag]) =>
                                     tag.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                    notes.some(note => note.tags?.includes(tag) &&
-                                        (note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                            note.content.toLowerCase().includes(searchQuery.toLowerCase()))
+                                    notes.some(note =>
+                                        note.tags?.includes(tag) &&
+                                        ((note.title && note.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                                            (note.content && note.content.toLowerCase().includes(searchQuery.toLowerCase())))
                                     )
                                 ).map(([tag, count]) => (
                                     <li key={tag} className="cursor-pointer">
@@ -274,14 +276,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                     ) : (
                         <ul className='flex flex-col gap-2'>
                             {deletedNotes.filter(note =>
-                                note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                note.content.toLowerCase().includes(searchQuery.toLowerCase())
+                                (note.title && note.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                                (note.content && note.content.toLowerCase().includes(searchQuery.toLowerCase()))
                             ).length === 0 ? (
                                 <p className="text-center mt-4">No results found</p>
                             ) : (
                                 deletedNotes.filter(note =>
-                                    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                    note.content.toLowerCase().includes(searchQuery.toLowerCase())
+                                    (note.title && note.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                                    (note.content && note.content.toLowerCase().includes(searchQuery.toLowerCase()))
                                 ).map(note => (
                                     <li
                                         key={note.id}
