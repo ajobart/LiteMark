@@ -1,14 +1,14 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route, } from 'react-router-dom';
 import Home from './pages/home/home';
 
 const App: React.FC = () => {
   return (
-    <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="*" element={<Home />} />
-        </Routes>
+    <Router basename={import.meta.env.VITE_BASE_URL}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="*" element={<Home />} />
+            </Routes>
     </Router>
   );
 };
