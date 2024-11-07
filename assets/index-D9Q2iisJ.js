@@ -2018,12 +2018,7 @@ Si vous voulez en apprendre plus sur le Mardown, cliquez [ici](https://www.markd
     - [x] Fait
 
 Amusez-vous bien ! 🎉
-`},yV={id:"default-long-note",title:"Long note",tags:["#tutorial"],lastModified:new Date,content:`
-Create sophisticated formatting for your notes on LiteMark with simple syntax.
-
-This is intended as a quick reference and showcase.
-For more complete info, see [John Gruber's original spec](https://daringfireball.net/projects/markdown/) and the [Github-flavored Markdown spec page](https://github.github.com/gfm/).
-
+`},yV={id:"default-long-note",title:"Syntax tutorial",tags:["#tutorial"],lastModified:new Date,content:`
 ## Headings
 
 To create a heading, add one to six \`#\` symbols before your heading text. The number of \`#\` you use will determine the hierarchy level and typeface size of the heading.
@@ -2046,7 +2041,7 @@ It yields:
 
 ## Styling text
 
-You can indicate emphasis with bold, italic, strikethrough, subscript, or superscript text in comment fields and \`.md\` files.
+You can indicate emphasis with bold, italic, strikethrough, text in comment fields and \`.md\` files.
 
 | Style                  | Syntax              | Example                                  | Output                                 |
 | ---------------------- | ------------------- | ---------------------------------------- | -------------------------------------- |
@@ -2054,9 +2049,8 @@ You can indicate emphasis with bold, italic, strikethrough, subscript, or supers
 | Italic                 | \`* *\` or \`_ _\`      | \`_This text is italicized_\`              | _This text is italicized_              |
 | Strikethrough          | \`~~ ~~\`             | \`~~This was mistaken text~~\`             | ~~This was mistaken text~~             |
 | Bold and nested italic | \`** **\` and \`_ _\`   | \`**This text is _extremely_ important**\` | **This text is _extremely_ important** |
-| All bold and italic    | \`*** ***\`           |  \`***All this text is important***\`       | **_All this text is important_**       |
-| Subscript              | \`<sub> </sub>\`      |  \`This is a <sub>subscript</sub> text\`    | This is a <sub>subscript</sub> text    |
-| Superscript            | \`<sup> </sup>\`      |  \`This is a <sup>superscript</sup> text\`  | This is a <sup>superscript</sup> text  |
+| All bold and italic    | \`*** ***\`           | \`***All this text is important***\`       | ***All this text is important***       |
+| Comment                | \`<!-- -->\`          | \`<!-- Commented text -->\`                | <!-- Commented text -->                |
 
 ## Quoting text
 
@@ -2112,19 +2106,19 @@ Syntax highlighting changes the color and style of source code to make it easier
 For example, to syntax highlight Ruby code:
 
 \`\`\`\`
-\`\`\`ruby
-require 'redcarpet'
-markdown = Redcarpet.new("Hello World!")
-puts markdown.to_html
+\`\`\`ts
+function createClassNameString(classNames) {
+  return classNames.join(' ');
+}
 \`\`\`
 \`\`\`\`
 
 This will display the code block with syntax highlighting:
 
-\`\`\`ruby
-require 'redcarpet'
-markdown = Redcarpet.new("Hello World!")
-puts markdown.to_html
+\`\`\`ts
+function createClassNameString(classNames) {
+  return classNames.join(' ');
+}
 \`\`\`
 
 ## Links
@@ -2224,20 +2218,6 @@ For a full list of available emoji and codes, see [the Emoji-Cheat-Sheet](https:
 
 You can create a new paragraph by leaving a blank line between lines of text.
 
-## Line Breaks
-
-To create a line break or new line (\`<br>\`), end a line with two, more spaces or a backslash (\`\\\`), and then type return.
-
-\`\`\`markdown
-This is the first line.  
-And this is the second line.\\
-This is the third line.
-\`\`\`
-
-This is the first line.  
-And this is the second line.\\
-This is the third line.
-
 ## Ignoring Markdown formatting
 
 You can tell to ignore (or escape) Markdown formatting by using \`\\\` before the Markdown character.
@@ -2248,20 +2228,7 @@ Let's rename \\*our-new-project\\* to \\*our-old-project\\*.
 
 ## Tables
 
-GFM enables the \`table\` extension, where an additional leaf block type is available.
-
 \`\`\`gfm
-Colons can be used to align columns.
-
-| Tables        |      Are      |  Cool |
-| ------------- | :-----------: | ----: |
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      |   centered    |   $12 |
-| zebra stripes |   are neat    |    $1 |
-
-There must be at least 3 dashes separating each header cell.
-The outer pipes (|) are optional, and you don't need to make the
-raw Markdown line up prettily. You can also use inline Markdown.
 
 | Markdown | Less      | Pretty     |
 | -------- | --------- | ---------- |
@@ -2270,18 +2237,6 @@ raw Markdown line up prettily. You can also use inline Markdown.
 \`\`\`
 
 Here are the rendered tables:
-
-Colons can be used to align columns.
-
-| Tables        |      Are      |  Cool |
-| ------------- | :-----------: | ----: |
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      |   centered    |   $12 |
-| zebra stripes |   are neat    |    $1 |
-
-There must be at least 3 dashes separating each header cell.
-The outer pipes (|) are optional, and you don't need to make the
-raw Markdown line up prettily. You can also use inline Markdown.
 
 | Markdown | Less      | Pretty     |
 | -------- | --------- | ---------- |
