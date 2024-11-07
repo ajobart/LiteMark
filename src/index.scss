@@ -55,7 +55,7 @@ html, body, #root {
 }
 
 .markdown-body code {
-    @apply bg-background-code text-blue-400 rounded px-0;
+    @apply bg-background-code text-blue-400 rounded px-0 break-words whitespace-normal inline-block max-w-full;
 }
 
 .markdown-body .contains-task-list {
